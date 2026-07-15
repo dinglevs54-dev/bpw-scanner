@@ -194,9 +194,8 @@ PROFESSIONAL_DASHBOARD = """
             padding: 20px;
             margin-bottom: 15px;
         }
-        .finding-card.critical { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); }
-        .finding-card.high { border-left: 4px solid #f97316; background: rgba(249, 115, 22, 0.05); }
-        .finding-card.medium { border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); }
+        .finding-card.detection { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); }
+        .finding-card.warning { border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); }
         .finding-card.info { border-left: 4px solid #06b6d4; }
         
         .finding-header {
@@ -214,14 +213,12 @@ PROFESSIONAL_DASHBOARD = """
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .badge-critical { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
-        .badge-high { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
-        .badge-medium { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+        .badge-detection { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+        .badge-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
         .badge-info { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; }
         
         .finding-detail { color: #888; font-size: 14px; margin: 8px 0; }
         .finding-path { color: #06b6d4; font-family: 'JetBrains Mono', monospace; font-size: 12px; word-break: break-all; }
-        .finding-hash { color: #666; font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
         
         .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .empty-state { color: #666; text-align: center; padding: 60px 20px; }
@@ -252,6 +249,20 @@ PROFESSIONAL_DASHBOARD = """
         .info-item { margin-bottom: 10px; }
         .info-label { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
         .info-value { color: #fff; font-weight: 600; font-size: 16px; }
+        .filter-buttons { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: #888;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .filter-btn.active { background: rgba(120,119,198,0.3); color: #fff; border-color: #7877c6; }
+        .finding-count { color: #666; font-size: 14px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -267,22 +278,22 @@ PROFESSIONAL_DASHBOARD = """
             <span>ℹ️</span><span>General Info</span>
         </div>
         <div class="nav-item" onclick="showPage('files')">
-            <span></span><span>File Activity</span>
+            <span>📄</span><span>File Activity</span>
         </div>
         <div class="nav-item" onclick="showPage('suspicious')">
             <span>⚠️</span><span>Suspicious</span>
         </div>
         <div class="nav-item" onclick="showPage('accounts')">
-            <span></span><span>Alt Accounts</span>
+            <span>👤</span><span>Alt Accounts</span>
         </div>
-        <a href="/logout" class="logout-btn"> Logout</a>
+        <a href="/logout" class="logout-btn">🚪 Logout</a>
     </div>
     
     <div class="main-content">
         <div class="top-bar">
             <h2>🎯 Overview</h2>
             <div>
-                <span class="stat-badge warnings">️ <span id="top-warnings">0</span></span>
+                <span class="stat-badge warnings">⚠️ <span id="top-warnings">0</span></span>
                 <span class="stat-badge detections">🎯 <span id="top-detections">0</span></span>
             </div>
         </div>
@@ -298,18 +309,18 @@ PROFESSIONAL_DASHBOARD = """
                     <div class="stat-card-value" id="stat-warnings">0</div>
                 </div>
                 <div class="stat-card information">
-                    <div class="stat-card-title">️ Information</div>
+                    <div class="stat-card-title">ℹ️ Information</div>
                     <div class="stat-card-value" id="stat-information">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-card-title"> Total Logs</div>
+                    <div class="stat-card-title">📊 Total Logs</div>
                     <div class="stat-card-value" id="stat-total">0</div>
                 </div>
             </div>
             
             <div class="main-grid">
                 <div class="glass-panel">
-                    <div class="panel-header"><div class="panel-title"> Generate Access Code</div></div>
+                    <div class="panel-header"><div class="panel-title">🔑 Generate Access Code</div></div>
                     <button class="btn-primary" onclick="generatePin()">Generate New Code</button>
                     <div class="code-display">
                         <div style="color: #888; margin-bottom: 10px; font-size: 14px;">YOUR 6-DIGIT CODE</div>
@@ -346,50 +357,28 @@ PROFESSIONAL_DASHBOARD = """
         </div>
         
         <div id="page-files" class="page">
-            <div class="section-grid">
-                <div class="glass-panel">
-                    <div class="panel-header"><div class="panel-title">📄 Suspicious Files</div></div>
-                    <div id="files-content">
-                        <div class="empty-state">No suspicious files found</div>
-                    </div>
-                </div>
-                <div class="glass-panel">
-                    <div class="panel-header"><div class="panel-title">🗑️ Deleted Executables</div></div>
-                    <div id="deleted-content">
-                        <div class="empty-state">No deleted executables found</div>
-                    </div>
+            <div class="glass-panel">
+                <div class="panel-header"><div class="panel-title">📄 Suspicious Files</div></div>
+                <div id="files-content">
+                    <div class="empty-state">No suspicious files found</div>
                 </div>
             </div>
         </div>
         
         <div id="page-suspicious" class="page">
-            <div class="section-grid">
-                <div class="glass-panel">
-                    <div class="panel-header"><div class="panel-title">️ Processes</div></div>
-                    <div id="processes-content">
-                        <div class="empty-state">No suspicious processes found</div>
-                    </div>
-                </div>
-                <div class="glass-panel">
-                    <div class="panel-header"><div class="panel-title">💾 DMA Devices</div></div>
-                    <div id="dma-content">
-                        <div class="empty-state">No suspicious DMA devices found</div>
-                    </div>
-                </div>
-            </div>
-            <div class="glass-panel" style="margin-top: 20px;">
-                <div class="panel-header"><div class="panel-title">📀 Prefetch Artifacts</div></div>
-                <div id="prefetch-content">
-                    <div class="empty-state">No prefetch artifacts found</div>
+            <div class="glass-panel">
+                <div class="panel-header"><div class="panel-title">⚠️ Suspicious Findings</div></div>
+                <div id="suspicious-content">
+                    <div class="empty-state">No suspicious findings</div>
                 </div>
             </div>
         </div>
         
         <div id="page-accounts" class="page">
             <div class="glass-panel">
-                <div class="panel-header"><div class="panel-title">👤 Discord Accounts</div></div>
-                <div id="discord-content">
-                    <div class="empty-state">No Discord accounts or modifications found</div>
+                <div class="panel-header"><div class="panel-title">👤 Alt Accounts</div></div>
+                <div id="accounts-content">
+                    <div class="empty-state">No alt accounts found</div>
                 </div>
             </div>
         </div>
@@ -397,13 +386,19 @@ PROFESSIONAL_DASHBOARD = """
     
     <script>
         let currentLogs = null;
+        let allFindings = [];
         let pieChart = null;
         
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            // Find the clicked nav item
+            document.querySelectorAll('.nav-item').forEach(n => {
+                if (n.textContent.toLowerCase().includes(pageId)) {
+                    n.classList.add('active');
+                }
+            });
         }
         
         async function generatePin() {
@@ -425,6 +420,7 @@ PROFESSIONAL_DASHBOARD = """
                 
                 if (data.status === 'success') {
                     currentLogs = data.logs;
+                    allFindings = data.logs.findings || [];
                     updateOverview(data.logs);
                     populateAllSections(data.logs);
                     output.innerHTML = '<div style="color:#06b6d4;text-align:center;padding:20px;">✅ Logs loaded!<br>Click on sidebar sections to view findings.</div>';
@@ -441,9 +437,9 @@ PROFESSIONAL_DASHBOARD = """
             
             if (logs.findings) {
                 logs.findings.forEach(f => {
-                    const s = (f.severity || 'INFO').toUpperCase();
-                    if (s === 'CRITICAL' || s === 'HIGH') detections++;
-                    else if (s === 'MEDIUM') warnings++;
+                    const tier = (f.tier || 'Information').toLowerCase();
+                    if (tier === 'detection') detections++;
+                    else if (tier === 'warning') warnings++;
                     else information++;
                 });
             }
@@ -459,35 +455,27 @@ PROFESSIONAL_DASHBOARD = """
         }
         
         function createFindingCard(item) {
-            const severity = (item.severity || 'INFO').toUpperCase();
-            const sevClass = severity === 'CRITICAL' ? 'critical' : 
-                            severity === 'HIGH' ? 'high' : 
-                            severity === 'MEDIUM' ? 'medium' : 'info';
-            const badgeClass = 'badge-' + sevClass;
+            const tier = (item.tier || 'Information').toLowerCase();
+            const tierClass = tier === 'detection' ? 'detection' : 
+                             tier === 'warning' ? 'warning' : 'info';
+            const badgeClass = 'badge-' + tierClass;
+            const displayTier = tier === 'detection' ? 'DETECTION' : 
+                               tier === 'warning' ? 'WARNING' : 'INFO';
             
-            let html = '<div class="finding-card ' + sevClass + '">';
+            let html = '<div class="finding-card ' + tierClass + '">';
             html += '<div class="finding-header">';
-            html += '<div class="finding-title">' + (item.type || 'Finding') + '</div>';
-            html += '<span class="badge ' + badgeClass + '">' + severity + '</span>';
+            html += '<div class="finding-title">' + (item.flag || item.category || 'Finding') + '</div>';
+            html += '<span class="badge ' + badgeClass + '">' + displayTier + '</span>';
             html += '</div>';
             
-            if (item.file) {
-                html += '<div class="finding-detail" style="color:#fff;margin:8px 0;">📄 ' + item.file + '</div>';
+            if (item.details) {
+                html += '<div class="finding-detail" style="color:#fff;margin:8px 0;">' + item.details + '</div>';
             }
-            if (item.reason) {
-                html += '<div class="finding-detail" style="color:#888;margin:5px 0;">' + item.reason + '</div>';
-            }
-            if (item.path) {
-                html += '<div class="finding-path">📍 ' + item.path + '</div>';
-            }
-            if (item.hash) {
-                html += '<div class="finding-hash">🔐 ' + item.hash + '</div>';
+            if (item.category) {
+                html += '<div class="finding-detail" style="color:#888;margin:5px 0;">📂 ' + item.category + '</div>';
             }
             if (item.timestamp) {
                 html += '<div class="finding-detail" style="color:#06b6d4;margin:5px 0;">⏰ ' + item.timestamp + '</div>';
-            }
-            if (item.note) {
-                html += '<div class="finding-detail" style="color:#f59e0b;margin:5px 0;">️ ' + item.note + '</div>';
             }
             
             html += '</div>';
@@ -502,159 +490,65 @@ PROFESSIONAL_DASHBOARD = """
             
             console.log('Populating sections with', logs.findings.length, 'findings');
             
-            const categories = {
-                discord: [],
-                files: [],
-                deleted: [],
-                processes: [],
-                dma: [],
-                prefetch: [],
-                logs: [],
-                general: []
-            };
-            
-            logs.findings.forEach(f => {
-                const type = (f.type || '').toLowerCase();
-                
-                if (type.includes('discord')) {
-                    categories.discord.push(f);
-                } else if (type.includes('deleted')) {
-                    categories.deleted.push(f);
-                } else if (type.includes('process')) {
-                    categories.processes.push(f);
-                } else if (type.includes('dma') || type.includes('device')) {
-                    categories.dma.push(f);
-                } else if (type.includes('prefetch')) {
-                    categories.prefetch.push(f);
-                } else if (type.includes('log')) {
-                    categories.logs.push(f);
-                } else if (type.includes('file')) {
-                    categories.files.push(f);
-                } else {
-                    categories.general.push(f);
-                }
-            });
-            
-            console.log('Categories:', {
-                discord: categories.discord.length,
-                files: categories.files.length,
-                deleted: categories.deleted.length,
-                processes: categories.processes.length,
-                dma: categories.dma.length,
-                prefetch: categories.prefetch.length,
-                logs: categories.logs.length,
-                general: categories.general.length
-            });
-            
             // General Info
             const generalDiv = document.getElementById('general-content');
             if (generalDiv) {
                 let html = '<div class="info-box"><div class="info-grid">';
                 html += '<div class="info-item"><div class="info-label">📅 Scan Time</div><div class="info-value">' + (logs.timestamp || 'N/A') + '</div></div>';
                 html += '<div class="info-item"><div class="info-label">💻 Hostname</div><div class="info-value">' + (logs.hostname || 'Unknown') + '</div></div>';
-                html += '<div class="info-item"><div class="info-label"> Username</div><div class="info-value">' + (logs.username || 'Unknown') + '</div></div>';
+                html += '<div class="info-item"><div class="info-label">👤 Username</div><div class="info-value">' + (logs.username || 'Unknown') + '</div></div>';
                 html += '<div class="info-item"><div class="info-label">📊 Total Findings</div><div class="info-value">' + (logs.total_findings || 0) + '</div></div>';
                 html += '</div></div>';
                 
-                if (categories.logs.length > 0) {
-                    html += '<h3 style="color:#fff;margin:20px 0 15px;">⚠️ Log Tampering</h3>';
-                    categories.logs.forEach(item => { html += createFindingCard(item); });
-                }
-                
-                if (categories.general.length > 0) {
-                    html += '<h3 style="color:#fff;margin:20px 0 15px;"> Other Findings</h3>';
-                    categories.general.forEach(item => { html += createFindingCard(item); });
-                }
-                
-                if (categories.logs.length === 0 && categories.general.length === 0) {
-                    html += '<div class="empty-state">No general findings</div>';
-                }
+                // Show all findings in General Info
+                html += '<h3 style="color:#fff;margin:20px 0 15px;">📋 All Findings (' + logs.findings.length + ')</h3>';
+                logs.findings.forEach(item => { html += createFindingCard(item); });
                 
                 generalDiv.innerHTML = html;
             }
             
-            // Files
+            // Files - show file-related findings
             const filesDiv = document.getElementById('files-content');
             if (filesDiv) {
-                if (categories.files.length > 0) {
-                    let html = '';
-                    categories.files.forEach(f => { html += createFindingCard(f); });
+                const fileFindings = logs.findings.filter(f => 
+                    f.category && (f.category.includes('File') || f.category.includes('Disk') || f.category.includes('USN'))
+                );
+                if (fileFindings.length > 0) {
+                    let html = '<div class="finding-count">Found ' + fileFindings.length + ' file-related findings</div>';
+                    fileFindings.forEach(f => { html += createFindingCard(f); });
                     filesDiv.innerHTML = html;
                 } else {
-                    filesDiv.innerHTML = '<div class="empty-state">No suspicious files found</div>';
+                    filesDiv.innerHTML = '<div class="empty-state">No file-related findings</div>';
                 }
             }
             
-            // Deleted
-            const deletedDiv = document.getElementById('deleted-content');
-            if (deletedDiv) {
-                if (categories.deleted.length > 0) {
-                    let html = '';
-                    categories.deleted.forEach(f => {
-                        html += '<div class="finding-card info">';
-                        html += '<div class="finding-header"><div class="finding-title">🗑️ ' + (f.file || 'Unknown') + '</div><span class="badge badge-info">DELETED</span></div>';
-                        if (f.reason) html += '<div class="finding-detail">' + f.reason + '</div>';
-                        if (f.timestamp) html += '<div class="finding-detail" style="color:#06b6d4;">⏰ ' + f.timestamp + '</div>';
-                        if (f.note) html += '<div class="finding-detail" style="color:#f59e0b;">️ ' + f.note + '</div>';
-                        html += '</div>';
-                    });
-                    deletedDiv.innerHTML = html;
+            // Suspicious - show warnings and detections
+            const suspiciousDiv = document.getElementById('suspicious-content');
+            if (suspiciousDiv) {
+                const suspicious = logs.findings.filter(f => 
+                    f.tier && (f.tier.toLowerCase() === 'detection' || f.tier.toLowerCase() === 'warning')
+                );
+                if (suspicious.length > 0) {
+                    let html = '<div class="finding-count">Found ' + suspicious.length + ' suspicious findings</div>';
+                    suspicious.forEach(f => { html += createFindingCard(f); });
+                    suspiciousDiv.innerHTML = html;
                 } else {
-                    deletedDiv.innerHTML = '<div class="empty-state">No deleted executables found</div>';
+                    suspiciousDiv.innerHTML = '<div class="empty-state">No suspicious findings</div>';
                 }
             }
             
-            // Processes
-            const processesDiv = document.getElementById('processes-content');
-            if (processesDiv) {
-                if (categories.processes.length > 0) {
+            // Accounts
+            const accountsDiv = document.getElementById('accounts-content');
+            if (accountsDiv) {
+                const accountFindings = logs.findings.filter(f => 
+                    f.category && (f.category.includes('Account') || f.category.includes('Discord'))
+                );
+                if (accountFindings.length > 0) {
                     let html = '';
-                    categories.processes.forEach(f => { html += createFindingCard(f); });
-                    processesDiv.innerHTML = html;
+                    accountFindings.forEach(f => { html += createFindingCard(f); });
+                    accountsDiv.innerHTML = html;
                 } else {
-                    processesDiv.innerHTML = '<div class="empty-state">No suspicious processes found</div>';
-                }
-            }
-            
-            // DMA
-            const dmaDiv = document.getElementById('dma-content');
-            if (dmaDiv) {
-                if (categories.dma.length > 0) {
-                    let html = '';
-                    categories.dma.forEach(f => {
-                        html += '<div class="finding-card critical">';
-                        html += '<div class="finding-header"><div class="finding-title">🔌 ' + (f.file || 'Unknown Device') + '</div><span class="badge badge-critical">CRITICAL</span></div>';
-                        if (f.reason) html += '<div class="finding-detail">' + f.reason + '</div>';
-                        if (f.device_id) html += '<div class="finding-detail" style="color:#888;font-family:monospace;">ID: ' + f.device_id + '</div>';
-                        html += '</div>';
-                    });
-                    dmaDiv.innerHTML = html;
-                } else {
-                    dmaDiv.innerHTML = '<div class="empty-state">No suspicious DMA devices found</div>';
-                }
-            }
-            
-            // Prefetch
-            const prefetchDiv = document.getElementById('prefetch-content');
-            if (prefetchDiv) {
-                if (categories.prefetch.length > 0) {
-                    let html = '';
-                    categories.prefetch.forEach(f => { html += createFindingCard(f); });
-                    prefetchDiv.innerHTML = html;
-                } else {
-                    prefetchDiv.innerHTML = '<div class="empty-state">No prefetch artifacts found</div>';
-                }
-            }
-            
-            // Discord
-            const discordDiv = document.getElementById('discord-content');
-            if (discordDiv) {
-                if (categories.discord.length > 0) {
-                    let html = '';
-                    categories.discord.forEach(f => { html += createFindingCard(f); });
-                    discordDiv.innerHTML = html;
-                } else {
-                    discordDiv.innerHTML = '<div class="empty-state">No Discord accounts or modifications found</div>';
+                    accountsDiv.innerHTML = '<div class="empty-state">No account findings</div>';
                 }
             }
             
@@ -691,6 +585,16 @@ PROFESSIONAL_DASHBOARD = """
                 }
             });
         }
+        
+        // Auto-fetch logs if PIN is in URL
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const pin = params.get('pin');
+            if (pin && pin.length === 6) {
+                document.getElementById('fetch-pin').value = pin;
+                fetchLogs();
+            }
+        };
     </script>
 </body>
 </html>
