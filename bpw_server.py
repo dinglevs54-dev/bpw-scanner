@@ -12,15 +12,17 @@ ADMIN_PASSWORD = "DINGLE_012"
 
 sessions = {}
 
-PROFESSIONAL_DASHBOARD = """
+CYBER_DASHBOARD = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPW - Forensic Scanner</title>
+    <title>BPW // FORENSIC SCANNER</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -28,81 +30,119 @@ PROFESSIONAL_DASHBOARD = """
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: #e0e0e0;
-            display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
         
         /* Sidebar */
         .sidebar {
-            width: 260px;
-            background-color: #0d1117;
-            border-right: 1px solid #1a1d24;
+            width: 280px;
+            background: rgba(15, 12, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            padding: 30px 0;
         }
         
         .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #1a1d24;
+            padding: 0 25px 30px;
+            border-bottom: 2px solid rgba(120, 119, 198, 0.3);
         }
         
         .sidebar-header h1 {
-            color: #00ff9d;
-            font-size: 24px;
-            letter-spacing: 1px;
+            background: linear-gradient(135deg, #7877c6, #ff77c6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .sidebar-header p {
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
         }
         
         .nav-item {
-            padding: 15px 20px;
+            padding: 15px 25px;
+            margin: 5px 15px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             transition: all 0.3s;
-            border-left: 3px solid transparent;
+            border-radius: 12px;
             color: #888;
+            font-weight: 600;
         }
         
         .nav-item:hover {
-            background-color: #1a1d24;
+            background: rgba(120, 119, 198, 0.1);
             color: #fff;
+            transform: translateX(5px);
         }
         
         .nav-item.active {
-            background-color: #0d2818;
-            border-left-color: #00ff9d;
-            color: #00ff9d;
+            background: linear-gradient(135deg, rgba(120, 119, 198, 0.3), rgba(255, 119, 198, 0.3));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(120, 119, 198, 0.3);
         }
         
         .nav-icon {
-            font-size: 18px;
+            font-size: 20px;
             width: 24px;
             text-align: center;
         }
         
         /* Main Content */
         .main-content {
-            margin-left: 260px;
-            flex: 1;
-            padding: 30px;
+            margin-left: 280px;
+            padding: 40px;
         }
         
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #00ff9d;
+            margin-bottom: 40px;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .top-bar h2 {
             color: #fff;
-            font-size: 28px;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #7877c6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .top-stats {
@@ -111,136 +151,302 @@ PROFESSIONAL_DASHBOARD = """
         }
         
         .stat-badge {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
         .stat-badge.warnings {
-            background-color: #f59e0b;
-            color: #000;
-        }
-        
-        .stat-badge.detections {
-            background-color: #dc2626;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
             color: #fff;
         }
         
-        /* Page Content */
-        .page {
-            display: none;
+        .stat-badge.detections {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
         }
         
-        .page.active {
-            display: block;
-        }
-        
-        /* Overview Stats */
-        .overview-container {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .chart-container {
-            background-color: #0d1117;
-            border: 1px solid #1a1d24;
-            border-radius: 12px;
-            padding: 30px;
-        }
-        
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
         }
         
         .stat-card {
-            padding: 25px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
         
-        .stat-card.detections {
-            background-color: #dc2626;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #7877c6, #ff77c6);
         }
         
-        .stat-card.warnings {
-            background-color: #f59e0b;
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(120, 119, 198, 0.2);
         }
         
-        .stat-card.information {
-            background-color: #0ea5e9;
+        .stat-card.detections::before {
+            background: linear-gradient(90deg, #ef4444, #f97316);
         }
         
-        .stat-card.total {
-            background-color: #1a1d24;
-            border: 1px solid #2a2d34;
+        .stat-card.warnings::before {
+            background: linear-gradient(90deg, #f59e0b, #eab308);
+        }
+        
+        .stat-card.information::before {
+            background: linear-gradient(90deg, #06b6d4, #3b82f6);
         }
         
         .stat-card-title {
             font-size: 14px;
-            opacity: 0.9;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .stat-card-value {
-            font-size: 36px;
-            font-weight: bold;
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
         }
         
-        /* Two Column Layout */
-        .two-column {
+        /* Main Grid */
+        .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
+            margin-bottom: 30px;
         }
         
-        .column {
-            background-color: #0d1117;
-            border: 1px solid #1a1d24;
-            border-radius: 12px;
-            padding: 25px;
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
         }
         
-        .column-header {
+        .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #00ff9d;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(120, 119, 198, 0.3);
         }
         
-        .column-title {
-            font-size: 20px;
+        .panel-title {
+            font-size: 22px;
+            font-weight: 700;
             color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        /* Collapsible Sections */
-        .collapsible-section {
-            background-color: #1a1d24;
-            border-radius: 8px;
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #7877c6, #ff77c6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #7877c6, #ff77c6);
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 15px rgba(120, 119, 198, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(120, 119, 198, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Code Display */
+        .code-display {
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.8), rgba(48, 43, 99, 0.8));
+            border: 2px solid rgba(120, 119, 198, 0.5);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(120, 119, 198, 0.03) 10px,
+                rgba(120, 119, 198, 0.03) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+        
+        @keyframes slide {
+            0% { transform: translate(-50%, -50%); }
+            100% { transform: translate(0, 0); }
+        }
+        
+        .code-label {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .code-value {
+            font-size: 64px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #7877c6, #ff77c6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Input Group */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .input-group input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #7877c6;
+            box-shadow: 0 0 20px rgba(120, 119, 198, 0.2);
+        }
+        
+        /* Log Output */
+        .log-output {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(120, 119, 198, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .log-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .log-output::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .log-output::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #7877c6, #ff77c6);
+            border-radius: 4px;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        /* Collapsible */
+        .collapsible {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             margin-bottom: 15px;
             overflow: hidden;
         }
         
         .collapsible-header {
-            padding: 15px 20px;
+            padding: 20px;
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
         
         .collapsible-header:hover {
-            background-color: #22252c;
+            background: rgba(120, 119, 198, 0.1);
         }
         
         .collapsible-title {
@@ -248,13 +454,15 @@ PROFESSIONAL_DASHBOARD = """
             align-items: center;
             gap: 10px;
             font-weight: 600;
+            color: #fff;
         }
         
         .collapsible-arrow {
             transition: transform 0.3s;
+            color: #7877c6;
         }
         
-        .collapsible-section.open .collapsible-arrow {
+        .collapsible.open .collapsible-arrow {
             transform: rotate(90deg);
         }
         
@@ -263,190 +471,72 @@ PROFESSIONAL_DASHBOARD = """
             padding: 0 20px 20px;
         }
         
-        .collapsible-section.open .collapsible-content {
+        .collapsible.open .collapsible-content {
             display: block;
         }
         
-        .item-count {
-            background-color: #2a2d34;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            color: #888;
-        }
-        
-        /* Log Items */
-        .log-item {
-            background-color: #0d1117;
-            border: 1px solid #1a1d24;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-        }
-        
-        .log-item-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #fff;
-        }
-        
-        .log-item-path {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 8px;
-            font-family: monospace;
-        }
-        
-        .log-item-meta {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            font-size: 12px;
-            color: #888;
-        }
-        
-        /* Badges */
         .badge {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        .badge-information {
-            background-color: #0ea5e9;
-            color: white;
-        }
-        
-        .badge-warning {
-            background-color: #f59e0b;
-            color: black;
-        }
-        
-        .badge-detection {
-            background-color: #dc2626;
-            color: white;
-        }
-        
-        /* Buttons */
-        .btn-virustotal {
-            background-color: #1a1d24;
-            border: 1px solid #00ff9d;
-            color: #00ff9d;
             padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            text-decoration: none;
-        }
-        
-        .btn-virustotal:hover {
-            background-color: #00ff9d;
-            color: #0a0a0a;
-        }
-        
-        .btn-generate {
-            background-color: #00ff9d;
-            color: #0a0a0a;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
             border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .btn-generate:hover {
-            background-color: #00cc7d;
-        }
-        
-        .btn-fetch {
-            background-color: #00ff9d;
-            color: #0a0a0a;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        
-        .btn-fetch:hover {
-            background-color: #00cc7d;
-        }
-        
-        /* Input */
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        
-        .input-group input {
-            flex: 1;
-            background-color: #0a0a0a;
-            border: 1px solid #2a2d34;
+        .badge-critical {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #fff;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 16px;
         }
         
-        .input-group input:focus {
-            outline: none;
-            border-color: #00ff9d;
+        .badge-high {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
         }
         
-        #pin-display {
-            font-size: 48px;
-            color: #00ff9d;
-            font-weight: bold;
-            letter-spacing: 10px;
-            text-align: center;
-            background: #000;
-            padding: 30px;
+        .badge-medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+        }
+        
+        .badge-info {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: #fff;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fff;
+            padding: 15px;
             border-radius: 12px;
-            margin: 20px 0;
-            border: 2px solid #00ff9d;
-        }
-        
-        #log-output {
-            white-space: pre-wrap;
-            background: #0d1117;
-            padding: 20px;
-            border-radius: 8px;
-            max-height: 600px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 13px;
-            border: 1px solid #1a1d24;
-        }
-        
-        .empty-state {
-            background-color: #0d1117;
-            border: 1px solid #1a1d24;
-            border-radius: 8px;
-            padding: 40px;
             text-align: center;
-            color: #888;
-        }
-        
-        .logout {
-            background-color: #dc2626;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
             text-decoration: none;
-            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
         }
         
-        .logout:hover {
-            background-color: #b91c1c;
+        .logout-btn:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.3));
+            transform: translateY(-2px);
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -454,7 +544,8 @@ PROFESSIONAL_DASHBOARD = """
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>BPW // FORENSIC</h1>
+            <h1>⚡ BPW</h1>
+            <p>FORENSIC SCANNER v2.0</p>
         </div>
         
         <div class="nav-item active" onclick="showPage('overview')">
@@ -479,11 +570,11 @@ PROFESSIONAL_DASHBOARD = """
         
         <div class="nav-item" onclick="showPage('suspicious')">
             <span class="nav-icon">⚠️</span>
-            <span>Suspicious Entries</span>
+            <span>Suspicious</span>
         </div>
         
         <div class="nav-item" onclick="showPage('accounts')">
-            <span class="nav-icon">👤</span>
+            <span class="nav-icon"></span>
             <span>Alt Accounts</span>
         </div>
         
@@ -492,18 +583,16 @@ PROFESSIONAL_DASHBOARD = """
             <span>Tools</span>
         </div>
         
-        <div style="padding: 20px;">
-            <a href="/logout" class="logout">Logout</a>
-        </div>
+        <a href="/logout" class="logout-btn">🚪 Logout</a>
     </div>
     
     <!-- Main Content -->
     <div class="main-content">
         <div class="top-bar">
-            <h2 id="page-title">Overview</h2>
+            <h2>🎯 Overview</h2>
             <div class="top-stats">
                 <div class="stat-badge warnings">
-                    <span>️</span>
+                    <span>⚠️</span>
                     <span id="top-warnings">0</span>
                 </div>
                 <div class="stat-badge detections">
@@ -515,162 +604,164 @@ PROFESSIONAL_DASHBOARD = """
         
         <!-- Overview Page -->
         <div id="page-overview" class="page active">
-            <div class="overview-container">
+            <div class="stats-grid">
+                <div class="stat-card detections">
+                    <div class="stat-card-title">🎯 Detections</div>
+                    <div class="stat-card-value" id="stat-detections">0</div>
+                </div>
+                
+                <div class="stat-card warnings">
+                    <div class="stat-card-title">⚠️ Warnings</div>
+                    <div class="stat-card-value" id="stat-warnings">0</div>
+                </div>
+                
+                <div class="stat-card information">
+                    <div class="stat-card-title">ℹ️ Information</div>
+                    <div class="stat-card-value" id="stat-information">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-title"> Total Logs</div>
+                    <div class="stat-card-value" id="stat-total">0</div>
+                </div>
+            </div>
+            
+            <div class="main-grid">
+                <div class="glass-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-icon"></div>
+                            <span>Generate Access Code</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="generatePin()" style="width: 100%;">
+                        ⚡ Generate New Code
+                    </button>
+                    <div class="code-display">
+                        <div class="code-label">Your 6-Digit Code</div>
+                        <div class="code-value" id="pin-display">------</div>
+                    </div>
+                    <p style="color: #888; text-align: center; font-size: 14px;">
+                        Share this code with the target PC
+                    </p>
+                </div>
+                
+                <div class="glass-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-icon">📥</div>
+                            <span>Retrieve Logs</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="fetch-pin" placeholder="Enter 6-digit code" maxlength="6">
+                        <button class="btn-primary" onclick="fetchLogs()">Fetch</button>
+                    </div>
+                    <div id="log-output" class="log-output">
+                        <div style="color: #666; text-align: center; padding: 40px;">
+                            Logs will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon"></div>
+                        <span>Threat Analysis</span>
+                    </div>
+                </div>
                 <div class="chart-container">
                     <canvas id="pieChart"></canvas>
                 </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card detections">
-                        <div class="stat-card-title">Detections</div>
-                        <div class="stat-card-value" id="stat-detections">0</div>
-                    </div>
-                    
-                    <div class="stat-card warnings">
-                        <div class="stat-card-title">Warnings</div>
-                        <div class="stat-card-value" id="stat-warnings">0</div>
-                    </div>
-                    
-                    <div class="stat-card information">
-                        <div class="stat-card-title">Information</div>
-                        <div class="stat-card-value" id="stat-information">0</div>
-                    </div>
-                    
-                    <div class="stat-card total">
-                        <div class="stat-card-title">Total Logs</div>
-                        <div class="stat-card-value" id="stat-total">0</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="column">
-                <div class="column-header">
-                    <h3 class="column-title">Generate Access Code</h3>
-                </div>
-                <button class="btn-generate" onclick="generatePin()">Generate New Code</button>
-                <div id="pin-display">------</div>
-                <p style="color: #888; text-align: center;">Give this 6-digit code to the person you're scanning</p>
-            </div>
-            
-            <div class="column" style="margin-top: 30px;">
-                <div class="column-header">
-                    <h3 class="column-title">Retrieve Logs</h3>
-                </div>
-                <div class="input-group">
-                    <input type="text" id="fetch-pin" placeholder="Enter 6-digit code" maxlength="6">
-                    <button class="btn-fetch" onclick="fetchLogs()">Fetch Logs</button>
-                </div>
-                <div id="log-output">Logs will appear here...</div>
             </div>
         </div>
         
-        <!-- General Info Page -->
+        <!-- Other Pages (General, System, Files, etc.) -->
         <div id="page-general" class="page">
-            <div class="two-column">
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">General Information</h3>
-                    </div>
-                    <div id="general-info-content">
-                        <div class="empty-state">No data available. Fetch logs first.</div>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">ℹ️</div>
+                        <span>General Information</span>
                     </div>
                 </div>
-                
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Key Indications</h3>
-                    </div>
-                    <div id="key-indications-content">
-                        <div class="empty-state">No data available. Fetch logs first.</div>
-                    </div>
+                <div id="general-content">
+                    <p style="color: #666; text-align: center; padding: 40px;">
+                        Fetch logs from Overview to see data
+                    </p>
                 </div>
             </div>
         </div>
         
-        <!-- System Page -->
         <div id="page-system" class="page">
-            <div class="two-column">
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Devices Removed</h3>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">️</div>
+                        <span>System Information</span>
                     </div>
-                    <div class="empty-state">No logs found</div>
                 </div>
-                
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Windows Defender History</h3>
-                    </div>
-                    <div class="empty-state">No logs found</div>
-                </div>
+                <p style="color: #666; text-align: center; padding: 40px;">
+                    Fetch logs from Overview to see data
+                </p>
             </div>
         </div>
         
-        <!-- File Activity Page -->
         <div id="page-files" class="page">
-            <div class="two-column">
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Cheats Found</h3>
-                    </div>
-                    <div id="cheats-found-content">
-                        <div class="empty-state">No logs found</div>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon"></div>
+                        <span>File Activity</span>
                     </div>
                 </div>
-                
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Suspicious Executed Files Since User Logon</h3>
-                    </div>
-                    <div id="suspicious-executed-content">
-                        <div class="empty-state">No logs found</div>
-                    </div>
-                </div>
+                <p style="color: #666; text-align: center; padding: 40px;">
+                    Fetch logs from Overview to see data
+                </p>
             </div>
         </div>
         
-        <!-- Suspicious Entries Page -->
         <div id="page-suspicious" class="page">
-            <div class="two-column">
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Deleted Executables</h3>
-                    </div>
-                    <div id="deleted-executables-content">
-                        <div class="empty-state">No logs found</div>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">⚠️</div>
+                        <span>Suspicious Entries</span>
                     </div>
                 </div>
-                
-                <div class="column">
-                    <div class="column-header">
-                        <h3 class="column-title">Possible Suspicious Files</h3>
-                    </div>
-                    <div id="suspicious-files-content">
-                        <div class="empty-state">No logs found</div>
-                    </div>
-                </div>
+                <p style="color: #666; text-align: center; padding: 40px;">
+                    Fetch logs from Overview to see data
+                </p>
             </div>
         </div>
         
-        <!-- Alt Accounts Page -->
         <div id="page-accounts" class="page">
-            <div class="column">
-                <div class="column-header">
-                    <h3 class="column-title">Alternative Discord Accounts</h3>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">👤</div>
+                        <span>Alternative Accounts</span>
+                    </div>
                 </div>
-                <div id="alt-accounts-content">
-                    <div class="empty-state">No logs found</div>
-                </div>
+                <p style="color: #666; text-align: center; padding: 40px;">
+                    Fetch logs from Overview to see data
+                </p>
             </div>
         </div>
         
-        <!-- Tools Page -->
         <div id="page-tools" class="page">
-            <div class="column">
-                <div class="column-header">
-                    <h3 class="column-title">Tools</h3>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon"></div>
+                        <span>Tools</span>
+                    </div>
                 </div>
-                <p style="color: #888; margin: 20px 0;">Use the Overview page to generate codes and fetch logs.</p>
+                <p style="color: #666; text-align: center; padding: 40px;">
+                    Use the Overview page to generate codes and fetch logs
+                </p>
             </div>
         </div>
     </div>
@@ -685,21 +776,6 @@ PROFESSIONAL_DASHBOARD = """
             
             document.getElementById(`page-${pageId}`).classList.add('active');
             event.currentTarget.classList.add('active');
-            
-            const titles = {
-                'overview': 'Overview',
-                'general': 'General Info',
-                'system': 'System',
-                'files': 'File Activity',
-                'suspicious': 'Suspicious Entries',
-                'accounts': 'Alt Accounts',
-                'tools': 'Tools'
-            };
-            document.getElementById('page-title').innerText = titles[pageId];
-            
-            if (pageId === 'overview' && currentLogs) {
-                updateOverview(currentLogs);
-            }
         }
         
         async function generatePin() {
@@ -713,7 +789,7 @@ PROFESSIONAL_DASHBOARD = """
             if(pin.length !== 6) { alert("Please enter a 6-digit code"); return; }
             
             const output = document.getElementById('log-output');
-            output.innerText = "Fetching...";
+            output.innerHTML = '<div style="color: #7877c6; text-align: center; padding: 40px;">Fetching logs...</div>';
             
             try {
                 const res = await fetch(`/api/get-logs/${pin}`);
@@ -721,14 +797,14 @@ PROFESSIONAL_DASHBOARD = """
                 
                 if (data.status === 'success') {
                     currentLogs = data.logs;
-                    output.innerText = "Logs loaded successfully! Check the Overview and other tabs.";
                     updateOverview(data.logs);
-                    populateAllPages(data.logs);
+                    output.innerHTML = '<div style="color: #06b6d4; text-align: center; padding: 20px;">✅ Logs loaded successfully!</div>' + 
+                        '<pre style="color: #fff; margin-top: 20px;">' + JSON.stringify(data.logs, null, 2) + '</pre>';
                 } else {
-                    output.innerText = "Error: " + data.message;
+                    output.innerText = " Error: " + data.message;
                 }
             } catch (e) {
-                output.innerText = "Error fetching logs: " + e;
+                output.innerText = "❌ Error fetching logs: " + e;
             }
         }
         
@@ -773,8 +849,17 @@ PROFESSIONAL_DASHBOARD = """
                     labels: ['Detections', 'Warnings', 'Information'],
                     datasets: [{
                         data: [detections, warnings, information],
-                        backgroundColor: ['#dc2626', '#f59e0b', '#0ea5e9'],
-                        borderWidth: 0
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(6, 182, 212, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(6, 182, 212, 1)'
+                        ],
+                        borderWidth: 2
                     }]
                 },
                 options: {
@@ -783,129 +868,15 @@ PROFESSIONAL_DASHBOARD = """
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: '#fff', padding: 20 }
+                            labels: { 
+                                color: '#fff', 
+                                padding: 20,
+                                font: { family: 'Inter', size: 14 }
+                            }
                         }
                     }
                 }
             });
-        }
-        
-        function populateAllPages(logs) {
-            if (!logs.findings) return;
-            
-            // Group findings by type
-            const grouped = {};
-            logs.findings.forEach(finding => {
-                const type = finding.type || 'Other';
-                if (!grouped[type]) grouped[type] = [];
-                grouped[type].push(finding);
-            });
-            
-            // Populate General Info
-            const generalContent = document.getElementById('general-info-content');
-            const keyIndicationsContent = document.getElementById('key-indications-content');
-            
-            let generalHTML = '';
-            let keyHTML = '';
-            
-            Object.entries(grouped).forEach(([type, items]) => {
-                const severity = items[0].severity || 'INFO';
-                const badgeClass = severity === 'CRITICAL' || severity === 'HIGH' ? 'badge-detection' : 
-                                   severity === 'MEDIUM' ? 'badge-warning' : 'badge-information';
-                
-                const section = `
-                    <div class="collapsible-section open">
-                        <div class="collapsible-header" onclick="this.parentElement.classList.toggle('open')">
-                            <div class="collapsible-title">
-                                <span class="collapsible-arrow">›</span>
-                                <span>${type}</span>
-                                <span class="item-count">${items.length} items</span>
-                            </div>
-                            <span class="badge ${badgeClass}">${severity}</span>
-                        </div>
-                        <div class="collapsible-content">
-                            ${items.map(item => `
-                                <div class="log-item">
-                                    <div class="log-item-title">${item.file || 'Unknown'}</div>
-                                    <div class="log-item-path">${item.path || item.reason || ''}</div>
-                                    <div class="log-item-meta">
-                                        <span>⏱️ ${item.timestamp || logs.timestamp || ''}</span>
-                                        ${item.hash ? `<span>🔐 ${item.hash.substring(0, 16)}...</span>` : ''}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                
-                if (type.includes('Discord') || type.includes('Process') || type.includes('Device')) {
-                    keyHTML += section;
-                } else {
-                    generalHTML += section;
-                }
-            });
-            
-            generalContent.innerHTML = generalHTML || '<div class="empty-state">No general information found</div>';
-            keyIndicationsContent.innerHTML = keyHTML || '<div class="empty-state">No key indications found</div>';
-            
-            // Populate File Activity
-            const cheatsFound = logs.findings.filter(f => 
-                f.type.includes('Cheat') || f.type.includes('Suspicious File')
-            );
-            document.getElementById('cheats-found-content').innerHTML = cheatsFound.length > 0 ? 
-                cheatsFound.map(f => `
-                    <div class="log-item">
-                        <div class="log-item-title">${f.file}</div>
-                        <div class="log-item-path">${f.path || ''}</div>
-                        <div class="log-item-meta">
-                            <span class="badge badge-${f.severity === 'CRITICAL' || f.severity === 'HIGH' ? 'detection' : 'warning'}">${f.severity}</span>
-                            ${f.hash ? `<a href="https://www.virustotal.com/gui/file/${f.hash}" target="_blank" class="btn-virustotal"> VirusTotal</a>` : ''}
-                        </div>
-                    </div>
-                `).join('') : '<div class="empty-state">No cheats found</div>';
-            
-            // Populate Suspicious Entries
-            const deletedExes = logs.findings.filter(f => f.type.includes('Deleted'));
-            const suspiciousFiles = logs.findings.filter(f => 
-                f.type.includes('Suspicious') && !f.type.includes('Deleted')
-            );
-            
-            document.getElementById('deleted-executables-content').innerHTML = deletedExes.length > 0 ?
-                deletedExes.map(f => `
-                    <div class="log-item">
-                        <div class="log-item-title">${f.file}</div>
-                        <div class="log-item-path">${f.path || ''}</div>
-                        <div class="log-item-meta">
-                            <span>⏱️ ${f.timestamp || 'Unknown'}</span>
-                            <span class="badge badge-information">INFO</span>
-                        </div>
-                    </div>
-                `).join('') : '<div class="empty-state">No deleted executables found</div>';
-            
-            document.getElementById('suspicious-files-content').innerHTML = suspiciousFiles.length > 0 ?
-                suspiciousFiles.map(f => `
-                    <div class="log-item">
-                        <div class="log-item-title">${f.file}</div>
-                        <div class="log-item-path">${f.path || f.reason || ''}</div>
-                        <div class="log-item-meta">
-                            <span class="badge badge-warning">WARNING</span>
-                            ${f.hash ? `<a href="https://www.virustotal.com/gui/file/${f.hash}" target="_blank" class="btn-virustotal">🔍 VirusTotal</a>` : ''}
-                        </div>
-                    </div>
-                `).join('') : '<div class="empty-state">No suspicious files found</div>';
-            
-            // Populate Alt Accounts
-            const discordAccounts = logs.findings.filter(f => f.type.includes('Discord'));
-            document.getElementById('alt-accounts-content').innerHTML = discordAccounts.length > 0 ?
-                discordAccounts.map(f => `
-                    <div class="log-item">
-                        <div class="log-item-title">${f.file}</div>
-                        <div class="log-item-path">${f.reason || ''}</div>
-                        <div class="log-item-meta">
-                            <span class="badge badge-information">INFO</span>
-                        </div>
-                    </div>
-                `).join('') : '<div class="empty-state">No alternative accounts found</div>';
         }
     </script>
 </body>
@@ -916,7 +887,7 @@ PROFESSIONAL_DASHBOARD = """
 def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template_string(PROFESSIONAL_DASHBOARD)
+    return render_template_string(CYBER_DASHBOARD)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -931,18 +902,66 @@ def login():
                 <head>
                     <title>BPW Login</title>
                     <style>
-                        body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-                        .login-box { background: #1a1d24; padding: 40px; border-radius: 12px; border: 2px solid #00ff9d; text-align: center; }
-                        h1 { color: #00ff9d; margin-bottom: 30px; }
-                        input { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; width: 250px; margin-bottom: 20px; font-size: 16px; }
-                        button { background: #00ff9d; color: #000; border: none; padding: 12px 30px; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 16px; }
-                        button:hover { background: #00cc7d; }
-                        .error { color: #ff4757; margin-bottom: 20px; }
+                        body { 
+                            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+                            color: #fff; 
+                            font-family: 'Inter', sans-serif;
+                            display: flex; 
+                            justify-content: center; 
+                            align-items: center; 
+                            height: 100vh; 
+                            margin: 0; 
+                        }
+                        .login-box { 
+                            background: rgba(255, 255, 255, 0.03);
+                            backdrop-filter: blur(10px);
+                            padding: 50px; 
+                            border-radius: 20px; 
+                            border: 2px solid rgba(120, 119, 198, 0.3);
+                            text-align: center;
+                            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                        }
+                        h1 { 
+                            background: linear-gradient(135deg, #7877c6, #ff77c6);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            margin-bottom: 30px;
+                            font-size: 32px;
+                        }
+                        input { 
+                            background: rgba(255, 255, 255, 0.05);
+                            border: 1px solid rgba(255, 255, 255, 0.2); 
+                            color: #fff; 
+                            padding: 15px; 
+                            border-radius: 10px; 
+                            width: 300px; 
+                            margin-bottom: 20px; 
+                            font-size: 16px; 
+                        }
+                        button { 
+                            background: linear-gradient(135deg, #7877c6, #ff77c6);
+                            color: #fff; 
+                            border: none; 
+                            padding: 15px 40px; 
+                            font-weight: bold; 
+                            cursor: pointer; 
+                            border-radius: 10px; 
+                            font-size: 16px;
+                            transition: all 0.3s;
+                        }
+                        button:hover { 
+                            transform: translateY(-2px);
+                            box-shadow: 0 10px 30px rgba(120, 119, 198, 0.4);
+                        }
+                        .error { 
+                            color: #ef4444; 
+                            margin-bottom: 20px; 
+                        }
                     </style>
                 </head>
                 <body>
                     <div class="login-box">
-                        <h1>BPW // ADMIN LOGIN</h1>
+                        <h1>⚡ BPW FORENSIC</h1>
                         {% if error %}<div class="error">{{ error }}</div>{% endif %}
                         <form method="POST" action="/login">
                             <input type="password" name="password" placeholder="Enter Admin Password" required><br>
@@ -958,18 +977,62 @@ def login():
         <head>
             <title>BPW Login</title>
             <style>
-                body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-                .login-box { background: #1a1d24; padding: 40px; border-radius: 12px; border: 2px solid #00ff9d; text-align: center; }
-                h1 { color: #00ff9d; margin-bottom: 30px; }
-                input { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; width: 250px; margin-bottom: 20px; font-size: 16px; }
-                button { background: #00ff9d; color: #000; border: none; padding: 12px 30px; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 16px; }
-                button:hover { background: #00cc7d; }
-                .error { color: #ff4757; margin-bottom: 20px; }
+                body { 
+                    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+                    color: #fff; 
+                    font-family: 'Inter', sans-serif;
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    height: 100vh; 
+                    margin: 0; 
+                }
+                .login-box { 
+                    background: rgba(255, 255, 255, 0.03);
+                    backdrop-filter: blur(10px);
+                    padding: 50px; 
+                    border-radius: 20px; 
+                    border: 2px solid rgba(120, 119, 198, 0.3);
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                }
+                h1 { 
+                    background: linear-gradient(135deg, #7877c6, #ff77c6);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    margin-bottom: 30px;
+                    font-size: 32px;
+                }
+                input { 
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.2); 
+                    color: #fff; 
+                    padding: 15px; 
+                    border-radius: 10px; 
+                    width: 300px; 
+                    margin-bottom: 20px; 
+                    font-size: 16px; 
+                }
+                button { 
+                    background: linear-gradient(135deg, #7877c6, #ff77c6);
+                    color: #fff; 
+                    border: none; 
+                    padding: 15px 40px; 
+                    font-weight: bold; 
+                    cursor: pointer; 
+                    border-radius: 10px; 
+                    font-size: 16px;
+                    transition: all 0.3s;
+                }
+                button:hover { 
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 30px rgba(120, 119, 198, 0.4);
+                }
             </style>
         </head>
         <body>
             <div class="login-box">
-                <h1>BPW // ADMIN LOGIN</h1>
+                <h1>⚡ BPW FORENSIC</h1>
                 <form method="POST" action="/login">
                     <input type="password" name="password" placeholder="Enter Admin Password" required><br>
                     <button type="submit">Login</button>
