@@ -267,13 +267,13 @@ PROFESSIONAL_DASHBOARD = """
             <span>ℹ️</span><span>General Info</span>
         </div>
         <div class="nav-item" onclick="showPage('files')">
-            <span>📄</span><span>File Activity</span>
+            <span></span><span>File Activity</span>
         </div>
         <div class="nav-item" onclick="showPage('suspicious')">
             <span>⚠️</span><span>Suspicious</span>
         </div>
         <div class="nav-item" onclick="showPage('accounts')">
-            <span>👤</span><span>Alt Accounts</span>
+            <span></span><span>Alt Accounts</span>
         </div>
         <a href="/logout" class="logout-btn"> Logout</a>
     </div>
@@ -298,7 +298,7 @@ PROFESSIONAL_DASHBOARD = """
                     <div class="stat-card-value" id="stat-warnings">0</div>
                 </div>
                 <div class="stat-card information">
-                    <div class="stat-card-title">ℹ️ Information</div>
+                    <div class="stat-card-title">️ Information</div>
                     <div class="stat-card-value" id="stat-information">0</div>
                 </div>
                 <div class="stat-card">
@@ -427,7 +427,7 @@ PROFESSIONAL_DASHBOARD = """
                     currentLogs = data.logs;
                     updateOverview(data.logs);
                     populateAllSections(data.logs);
-                    output.innerHTML = '<div style="color:#06b6d4;text-align:center;padding:20px;">✅ Logs loaded successfully!<br>Navigate through sections to view detailed findings.</div>';
+                    output.innerHTML = '<div style="color:#06b6d4;text-align:center;padding:20px;">✅ Logs loaded!<br>Click on sidebar sections to view findings.</div>';
                 } else {
                     output.innerText = "❌ Error: " + data.message;
                 }
@@ -458,160 +458,24 @@ PROFESSIONAL_DASHBOARD = """
             drawPieChart(detections, warnings, information);
         }
         
-        function populateAllSections(logs) {
-            if (!logs.findings) return;
-            
-            const cats = {
-                discord: [], files: [], deleted: [], processes: [], 
-                dma: [], prefetch: [], logs: [], general: []
-            };
-            
-            logs.findings.forEach(f => {
-                const t = (f.type || '').toLowerCase();
-                if (t.includes('discord')) cats.discord.push(f);
-                else if (t.includes('deleted')) cats.deleted.push(f);
-                else if (t.includes('process')) cats.processes.push(f);
-                else if (t.includes('dma') || t.includes('device')) cats.dma.push(f);
-                else if (t.includes('prefetch')) cats.prefetch.push(f);
-                else if (t.includes('log')) cats.logs.push(f);
-                else if (t.includes('file')) cats.files.push(f);
-                else cats.general.push(f);
-            });
-            
-            // General Info
-            const genDiv = document.getElementById('general-content');
-            if (genDiv) {
-                let html = '<div class="info-box"><div class="info-grid">';
-                html += '<div class="info-item"><div class="info-label">📅 Scan Time</div><div class="info-value">' + (logs.timestamp || 'N/A') + '</div></div>';
-                html += '<div class="info-item"><div class="info-label"> Hostname</div><div class="info-value">' + (logs.hostname || 'Unknown') + '</div></div>';
-                html += '<div class="info-item"><div class="info-label"> Username</div><div class="info-value">' + (logs.username || 'Unknown') + '</div></div>';
-                html += '<div class="info-item"><div class="info-label"> Total Findings</div><div class="info-value">' + (logs.total_findings || 0) + '</div></div>';
-                html += '</div></div>';
-                
-                if (cats.logs.length > 0) {
-                    html += '<h3 style="color:#fff;margin:20px 0 15px;">⚠️ Log Tampering Detected</h3>';
-                    cats.logs.forEach(item => {
-                        html += createFindingCard(item, 'critical');
-                    });
-                }
-                
-                if (cats.general.length > 0) {
-                    html += '<h3 style="color:#fff;margin:20px 0 15px;">📋 General Findings</h3>';
-                    cats.general.forEach(item => {
-                        html += createFindingCard(item, item.severity);
-                    });
-                }
-                
-                genDiv.innerHTML = html;
-            }
-            
-            // Files
-            const filesDiv = document.getElementById('files-content');
-            if (filesDiv) {
-                let html = '';
-                if (cats.files.length > 0) {
-                    cats.files.forEach(f => { html += createFindingCard(f, f.severity); });
-                } else {
-                    html = '<div class="empty-state">No suspicious files found</div>';
-                }
-                filesDiv.innerHTML = html;
-            }
-            
-            // Deleted
-            const delDiv = document.getElementById('deleted-content');
-            if (delDiv) {
-                let html = '';
-                if (cats.deleted.length > 0) {
-                    cats.deleted.forEach(f => {
-                        html += '<div class="finding-card info">';
-                        html += '<div class="finding-header"><div class="finding-title">️ ' + (f.file || 'Unknown') + '</div><span class="badge badge-info">DELETED</span></div>';
-                        html += '<div class="finding-detail">' + (f.reason || '') + '</div>';
-                        if (f.timestamp) html += '<div class="finding-detail" style="color:#06b6d4;">⏰ ' + f.timestamp + '</div>';
-                        if (f.note) html += '<div class="finding-detail" style="color:#f59e0b;">️ ' + f.note + '</div>';
-                        html += '</div>';
-                    });
-                } else {
-                    html = '<div class="empty-state">No deleted executables found</div>';
-                }
-                delDiv.innerHTML = html;
-            }
-            
-            // Processes
-            const procDiv = document.getElementById('processes-content');
-            if (procDiv) {
-                let html = '';
-                if (cats.processes.length > 0) {
-                    cats.processes.forEach(f => { html += createFindingCard(f, f.severity); });
-                } else {
-                    html = '<div class="empty-state">No suspicious processes found</div>';
-                }
-                procDiv.innerHTML = html;
-            }
-            
-            // DMA
-            const dmaDiv = document.getElementById('dma-content');
-            if (dmaDiv) {
-                let html = '';
-                if (cats.dma.length > 0) {
-                    cats.dma.forEach(f => {
-                        html += '<div class="finding-card critical">';
-                        html += '<div class="finding-header"><div class="finding-title">🔌 ' + (f.file || 'Unknown Device') + '</div><span class="badge badge-critical">CRITICAL</span></div>';
-                        html += '<div class="finding-detail">' + (f.reason || '') + '</div>';
-                        if (f.device_id) html += '<div class="finding-detail" style="color:#888;font-family:monospace;">ID: ' + f.device_id + '</div>';
-                        html += '</div>';
-                    });
-                } else {
-                    html = '<div class="empty-state">No suspicious DMA devices found</div>';
-                }
-                dmaDiv.innerHTML = html;
-            }
-            
-            // Prefetch
-            const prefetchDiv = document.getElementById('prefetch-content');
-            if (prefetchDiv) {
-                let html = '';
-                if (cats.prefetch.length > 0) {
-                    cats.prefetch.forEach(f => { html += createFindingCard(f, f.severity); });
-                } else {
-                    html = '<div class="empty-state">No prefetch artifacts found</div>';
-                }
-                prefetchDiv.innerHTML = html;
-            }
-            
-            // Discord
-            const discordDiv = document.getElementById('discord-content');
-            if (discordDiv) {
-                let html = '';
-                if (cats.discord.length > 0) {
-                    cats.discord.forEach(f => {
-                        const sev = f.severity === 'CRITICAL' ? 'critical' : 'info';
-                        html += createFindingCard(f, sev);
-                    });
-                } else {
-                    html = '<div class="empty-state">No Discord accounts or modifications found</div>';
-                }
-                discordDiv.innerHTML = html;
-            }
-        }
-        
-        function createFindingCard(item, severity) {
+        function createFindingCard(item) {
+            const severity = (item.severity || 'INFO').toUpperCase();
             const sevClass = severity === 'CRITICAL' ? 'critical' : 
                             severity === 'HIGH' ? 'high' : 
                             severity === 'MEDIUM' ? 'medium' : 'info';
             const badgeClass = 'badge-' + sevClass;
-            const badgeText = item.severity || 'INFO';
             
             let html = '<div class="finding-card ' + sevClass + '">';
             html += '<div class="finding-header">';
             html += '<div class="finding-title">' + (item.type || 'Finding') + '</div>';
-            html += '<span class="badge ' + badgeClass + '">' + badgeText + '</span>';
+            html += '<span class="badge ' + badgeClass + '">' + severity + '</span>';
             html += '</div>';
             
             if (item.file) {
-                html += '<div class="finding-detail" style="color:#fff;font-family:monospace;">📄 ' + item.file + '</div>';
+                html += '<div class="finding-detail" style="color:#fff;margin:8px 0;">📄 ' + item.file + '</div>';
             }
             if (item.reason) {
-                html += '<div class="finding-detail">' + item.reason + '</div>';
+                html += '<div class="finding-detail" style="color:#888;margin:5px 0;">' + item.reason + '</div>';
             }
             if (item.path) {
                 html += '<div class="finding-path">📍 ' + item.path + '</div>';
@@ -620,11 +484,181 @@ PROFESSIONAL_DASHBOARD = """
                 html += '<div class="finding-hash">🔐 ' + item.hash + '</div>';
             }
             if (item.timestamp) {
-                html += '<div class="finding-detail" style="color:#06b6d4;">⏰ ' + item.timestamp + '</div>';
+                html += '<div class="finding-detail" style="color:#06b6d4;margin:5px 0;">⏰ ' + item.timestamp + '</div>';
+            }
+            if (item.note) {
+                html += '<div class="finding-detail" style="color:#f59e0b;margin:5px 0;">️ ' + item.note + '</div>';
             }
             
             html += '</div>';
             return html;
+        }
+        
+        function populateAllSections(logs) {
+            if (!logs.findings || logs.findings.length === 0) {
+                console.log('No findings to display');
+                return;
+            }
+            
+            console.log('Populating sections with', logs.findings.length, 'findings');
+            
+            const categories = {
+                discord: [],
+                files: [],
+                deleted: [],
+                processes: [],
+                dma: [],
+                prefetch: [],
+                logs: [],
+                general: []
+            };
+            
+            logs.findings.forEach(f => {
+                const type = (f.type || '').toLowerCase();
+                
+                if (type.includes('discord')) {
+                    categories.discord.push(f);
+                } else if (type.includes('deleted')) {
+                    categories.deleted.push(f);
+                } else if (type.includes('process')) {
+                    categories.processes.push(f);
+                } else if (type.includes('dma') || type.includes('device')) {
+                    categories.dma.push(f);
+                } else if (type.includes('prefetch')) {
+                    categories.prefetch.push(f);
+                } else if (type.includes('log')) {
+                    categories.logs.push(f);
+                } else if (type.includes('file')) {
+                    categories.files.push(f);
+                } else {
+                    categories.general.push(f);
+                }
+            });
+            
+            console.log('Categories:', {
+                discord: categories.discord.length,
+                files: categories.files.length,
+                deleted: categories.deleted.length,
+                processes: categories.processes.length,
+                dma: categories.dma.length,
+                prefetch: categories.prefetch.length,
+                logs: categories.logs.length,
+                general: categories.general.length
+            });
+            
+            // General Info
+            const generalDiv = document.getElementById('general-content');
+            if (generalDiv) {
+                let html = '<div class="info-box"><div class="info-grid">';
+                html += '<div class="info-item"><div class="info-label">📅 Scan Time</div><div class="info-value">' + (logs.timestamp || 'N/A') + '</div></div>';
+                html += '<div class="info-item"><div class="info-label">💻 Hostname</div><div class="info-value">' + (logs.hostname || 'Unknown') + '</div></div>';
+                html += '<div class="info-item"><div class="info-label"> Username</div><div class="info-value">' + (logs.username || 'Unknown') + '</div></div>';
+                html += '<div class="info-item"><div class="info-label">📊 Total Findings</div><div class="info-value">' + (logs.total_findings || 0) + '</div></div>';
+                html += '</div></div>';
+                
+                if (categories.logs.length > 0) {
+                    html += '<h3 style="color:#fff;margin:20px 0 15px;">⚠️ Log Tampering</h3>';
+                    categories.logs.forEach(item => { html += createFindingCard(item); });
+                }
+                
+                if (categories.general.length > 0) {
+                    html += '<h3 style="color:#fff;margin:20px 0 15px;"> Other Findings</h3>';
+                    categories.general.forEach(item => { html += createFindingCard(item); });
+                }
+                
+                if (categories.logs.length === 0 && categories.general.length === 0) {
+                    html += '<div class="empty-state">No general findings</div>';
+                }
+                
+                generalDiv.innerHTML = html;
+            }
+            
+            // Files
+            const filesDiv = document.getElementById('files-content');
+            if (filesDiv) {
+                if (categories.files.length > 0) {
+                    let html = '';
+                    categories.files.forEach(f => { html += createFindingCard(f); });
+                    filesDiv.innerHTML = html;
+                } else {
+                    filesDiv.innerHTML = '<div class="empty-state">No suspicious files found</div>';
+                }
+            }
+            
+            // Deleted
+            const deletedDiv = document.getElementById('deleted-content');
+            if (deletedDiv) {
+                if (categories.deleted.length > 0) {
+                    let html = '';
+                    categories.deleted.forEach(f => {
+                        html += '<div class="finding-card info">';
+                        html += '<div class="finding-header"><div class="finding-title">🗑️ ' + (f.file || 'Unknown') + '</div><span class="badge badge-info">DELETED</span></div>';
+                        if (f.reason) html += '<div class="finding-detail">' + f.reason + '</div>';
+                        if (f.timestamp) html += '<div class="finding-detail" style="color:#06b6d4;">⏰ ' + f.timestamp + '</div>';
+                        if (f.note) html += '<div class="finding-detail" style="color:#f59e0b;">️ ' + f.note + '</div>';
+                        html += '</div>';
+                    });
+                    deletedDiv.innerHTML = html;
+                } else {
+                    deletedDiv.innerHTML = '<div class="empty-state">No deleted executables found</div>';
+                }
+            }
+            
+            // Processes
+            const processesDiv = document.getElementById('processes-content');
+            if (processesDiv) {
+                if (categories.processes.length > 0) {
+                    let html = '';
+                    categories.processes.forEach(f => { html += createFindingCard(f); });
+                    processesDiv.innerHTML = html;
+                } else {
+                    processesDiv.innerHTML = '<div class="empty-state">No suspicious processes found</div>';
+                }
+            }
+            
+            // DMA
+            const dmaDiv = document.getElementById('dma-content');
+            if (dmaDiv) {
+                if (categories.dma.length > 0) {
+                    let html = '';
+                    categories.dma.forEach(f => {
+                        html += '<div class="finding-card critical">';
+                        html += '<div class="finding-header"><div class="finding-title">🔌 ' + (f.file || 'Unknown Device') + '</div><span class="badge badge-critical">CRITICAL</span></div>';
+                        if (f.reason) html += '<div class="finding-detail">' + f.reason + '</div>';
+                        if (f.device_id) html += '<div class="finding-detail" style="color:#888;font-family:monospace;">ID: ' + f.device_id + '</div>';
+                        html += '</div>';
+                    });
+                    dmaDiv.innerHTML = html;
+                } else {
+                    dmaDiv.innerHTML = '<div class="empty-state">No suspicious DMA devices found</div>';
+                }
+            }
+            
+            // Prefetch
+            const prefetchDiv = document.getElementById('prefetch-content');
+            if (prefetchDiv) {
+                if (categories.prefetch.length > 0) {
+                    let html = '';
+                    categories.prefetch.forEach(f => { html += createFindingCard(f); });
+                    prefetchDiv.innerHTML = html;
+                } else {
+                    prefetchDiv.innerHTML = '<div class="empty-state">No prefetch artifacts found</div>';
+                }
+            }
+            
+            // Discord
+            const discordDiv = document.getElementById('discord-content');
+            if (discordDiv) {
+                if (categories.discord.length > 0) {
+                    let html = '';
+                    categories.discord.forEach(f => { html += createFindingCard(f); });
+                    discordDiv.innerHTML = html;
+                } else {
+                    discordDiv.innerHTML = '<div class="empty-state">No Discord accounts or modifications found</div>';
+                }
+            }
+            
+            console.log('Sections populated successfully');
         }
         
         function drawPieChart(d, w, i) {
@@ -674,7 +708,7 @@ def login():
         if request.form.get('password') == ADMIN_PASSWORD:
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
-        return render_template_string('<!DOCTYPE html><html><head><style>body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif}.box{background:rgba(255,255,255,0.03);padding:50px;border-radius:20px;border:2px solid rgba(120,119,198,0.3);text-align:center}h1{background:linear-gradient(135deg,#7877c6,#ff77c6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px}input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:15px;border-radius:10px;width:300px;margin-bottom:20px;font-size:16px}button{background:linear-gradient(135deg,#7877c6,#ff77c6);color:#fff;border:none;padding:15px 40px;font-weight:bold;cursor:pointer;border-radius:10px;font-size:16px}.error{color:#ef4444;margin-bottom:20px}</style></head><body><div class="box"><h1> BPW FORENSIC</h1>{% if error %}<div class="error">{{error}}</div>{% endif %}<form method="POST"><input type="password" name="password" placeholder="Password" required><button>Login</button></form></div></body></html>', error="Wrong password!" if request.form else None)
+        return render_template_string('<!DOCTYPE html><html><head><style>body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif}.box{background:rgba(255,255,255,0.03);padding:50px;border-radius:20px;border:2px solid rgba(120,119,198,0.3);text-align:center}h1{background:linear-gradient(135deg,#7877c6,#ff77c6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px}input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:15px;border-radius:10px;width:300px;margin-bottom:20px;font-size:16px}button{background:linear-gradient(135deg,#7877c6,#ff77c6);color:#fff;border:none;padding:15px 40px;font-weight:bold;cursor:pointer;border-radius:10px;font-size:16px}.error{color:#ef4444;margin-bottom:20px}</style></head><body><div class="box"><h1>⚡ BPW FORENSIC</h1>{% if error %}<div class="error">{{error}}</div>{% endif %}<form method="POST"><input type="password" name="password" placeholder="Password" required><button>Login</button></form></div></body></html>', error="Wrong password!" if request.form else None)
     return render_template_string('<!DOCTYPE html><html><head><style>body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif}.box{background:rgba(255,255,255,0.03);padding:50px;border-radius:20px;border:2px solid rgba(120,119,198,0.3);text-align:center}h1{background:linear-gradient(135deg,#7877c6,#ff77c6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px}input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:15px;border-radius:10px;width:300px;margin-bottom:20px;font-size:16px}button{background:linear-gradient(135deg,#7877c6,#ff77c6);color:#fff;border:none;padding:15px 40px;font-weight:bold;cursor:pointer;border-radius:10px;font-size:16px}</style></head><body><div class="box"><h1>⚡ BPW FORENSIC</h1><form method="POST"><input type="password" name="password" placeholder="Password" required><button>Login</button></form></div></body></html>')
 
 @app.route('/logout')
