@@ -1,15 +1,44 @@
 import os
 import random
 import string
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, session, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 # --- CHANGE THIS PASSWORD ---
 ADMIN_PASSWORD = "DINGLE_012" 
 # ----------------------------
 
 sessions = {}
+
+LOGIN_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BPW Login</title>
+    <style>
+        body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background: #1a1d24; padding: 40px; border-radius: 12px; border: 2px solid #00ff9d; text-align: center; }
+        h1 { color: #00ff9d; margin-bottom: 30px; }
+        input { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; width: 250px; margin-bottom: 20px; font-size: 16px; }
+        button { background: #00ff9d; color: #000; border: none; padding: 12px 30px; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 16px; }
+        button:hover { background: #00cc7d; }
+        .error { color: #ff4757; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>BPW // ADMIN LOGIN</h1>
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        <form method="POST" action="/login">
+            <input type="password" name="password" placeholder="Enter Admin Password" required><br>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>
+"""
 
 DASHBOARD_HTML = """
 <!DOCTYPE html>
@@ -28,10 +57,13 @@ DASHBOARD_HTML = """
         #pin-display { font-size: 48px; color: #00ff9d; font-weight: bold; letter-spacing: 10px; margin: 20px 0; text-align: center; background: #000; padding: 20px; border-radius: 8px; }
         #log-output { white-space: pre-wrap; background: #000; padding: 20px; border-radius: 4px; max-height: 500px; overflow-y: auto; font-family: monospace; font-size: 14px; color: #0f0; border: 1px solid #333; }
         h3 { color: #fff; margin-top: 0; }
+        .logout { float: right; background: #ff4757; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+        .logout:hover { background: #ff3344; }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="/logout" class="logout">Logout</a>
         <h1>BPW // COMMAND CENTER</h1>
         
         <div class="box">
@@ -78,16 +110,31 @@ DASHBOARD_HTML = """
 </html>
 """
 
-# Simple Password Protection
 @app.route('/')
 def dashboard():
-    auth = request.authorization
-    if not auth or auth.password != ADMIN_PASSWORD:
-        return "Access Denied. Please enter your password.", 401
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     return render_template_string(DASHBOARD_HTML)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form.get('password') == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template_string(LOGIN_HTML, error="Wrong password!")
+    return render_template_string(LOGIN_HTML, error=None)
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
 
 @app.route('/api/generate-pin', methods=['GET'])
 def generate_pin():
+    if not session.get('logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
     pin = ''.join(random.choices(string.digits, k=6))
     sessions[pin] = {"status": "waiting", "logs": None}
     return jsonify({"pin": pin})
@@ -108,6 +155,8 @@ def submit_logs(pin):
 
 @app.route('/api/get-logs/<pin>', methods=['GET'])
 def get_logs(pin):
+    if not session.get('logged_in'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
     if pin in sessions:
         if sessions[pin]["logs"]:
             return jsonify({"status": "success", "logs": sessions[pin]["logs"]})
