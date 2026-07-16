@@ -1,4 +1,3 @@
-# dashboard.py - BPW Forensic Scanner Dashboard v4.0 (Professional Design)
 import os
 import random
 import string
@@ -13,7 +12,7 @@ ADMIN_PASSWORD = "DINGLE_012"
 
 sessions = {}
 
-PROFESSIONAL_DASHBOARD = """
+DASHBOARD_HTML = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,31 +22,31 @@ PROFESSIONAL_DASHBOARD = """
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
-            --bg-primary: #0a0e1a;
+            --bg-primary: #0b0e1a;
             --bg-secondary: #111827;
             --bg-card: rgba(255,255,255,0.03);
             --border-color: rgba(255,255,255,0.06);
-            --text-primary: #ffffff;
+            --text-primary: #f0f0f0;
             --text-secondary: #94a3b8;
-            --text-muted: #475569;
+            --text-muted: #4a5568;
             --accent-cyan: #06b6d4;
             --accent-purple: #8b5cf6;
             --accent-pink: #ec4899;
             --accent-blue: #3b82f6;
             --accent-orange: #f59e0b;
             --accent-red: #ef4444;
-            --gradient-main: linear-gradient(135deg, #8b5cf6, #ec4899);
+            --gradient-main: linear-gradient(135deg, #8b5cf6, #06b6d4);
             --gradient-cyber: linear-gradient(135deg, #06b6d4, #8b5cf6);
-            --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15);
+            --shadow-glow: 0 0 40px rgba(139,92,246,0.15);
             --radius: 16px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-primary);
@@ -55,64 +54,20 @@ PROFESSIONAL_DASHBOARD = """
             min-height: 100vh;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(ellipse at 10% 20%, rgba(139,92,246,0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 90% 80%, rgba(6,182,212,0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(236,72,153,0.04) 0%, transparent 70%);
+                radial-gradient(ellipse at 10% 20%, rgba(6,182,212,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
         }
-        
+
         /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
-        ::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 10px; }
-        
-        /* ===== ANIMATED BACKGROUND ===== */
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 0;
-            animation: float 20s ease-in-out infinite;
-        }
-        .bg-orb.orb1 {
-            width: 400px;
-            height: 400px;
-            background: var(--accent-purple);
-            top: -100px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-        .bg-orb.orb2 {
-            width: 300px;
-            height: 300px;
-            background: var(--accent-cyan);
-            bottom: -50px;
-            left: -50px;
-            animation-delay: -7s;
-        }
-        .bg-orb.orb3 {
-            width: 200px;
-            height: 200px;
-            background: var(--accent-pink);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -14s;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -30px) scale(1.1); }
-            50% { transform: translate(-20px, 40px) scale(0.9); }
-            75% { transform: translate(40px, 20px) scale(1.05); }
-        }
-        
+        ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 10px; }
+
         /* ===== SIDEBAR ===== */
         .sidebar {
             width: 280px;
             min-height: 100vh;
-            background: rgba(17, 24, 39, 0.8);
+            background: rgba(17, 24, 39, 0.85);
             backdrop-filter: blur(20px);
             border-right: 1px solid var(--border-color);
             padding: 30px 0 20px;
@@ -124,55 +79,42 @@ PROFESSIONAL_DASHBOARD = """
             z-index: 100;
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .sidebar-brand {
             padding: 0 24px 30px;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 20px;
-        }
-        
-        .sidebar-brand .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
-        
-        .sidebar-brand .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-main);
+
+        .sidebar-brand img {
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 900;
-            color: #fff;
-            animation: pulse-glow 3s ease-in-out infinite;
+            object-fit: cover;
+            border: 2px solid rgba(6,182,212,0.3);
+            box-shadow: 0 0 20px rgba(6,182,212,0.15);
         }
-        
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
-        }
-        
-        .sidebar-brand h1 {
-            font-size: 24px;
+
+        .sidebar-brand .brand-text h1 {
+            font-size: 22px;
             font-weight: 900;
             background: var(--gradient-main);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
         }
-        
-        .sidebar-brand span {
+
+        .sidebar-brand .brand-text span {
             font-size: 11px;
             color: var(--text-muted);
             font-weight: 500;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
         }
-        
+
         .nav-item {
             padding: 12px 24px;
             margin: 2px 12px;
@@ -185,27 +127,20 @@ PROFESSIONAL_DASHBOARD = """
             font-weight: 500;
             font-size: 14px;
             transition: var(--transition);
-            position: relative;
         }
-        
-        .nav-item .icon {
-            width: 20px;
-            text-align: center;
-            font-size: 16px;
-        }
-        
+
         .nav-item:hover {
             background: rgba(255,255,255,0.04);
             color: #fff;
             transform: translateX(4px);
         }
-        
+
         .nav-item.active {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(6,182,212,0.12);
             color: #fff;
-            box-shadow: inset 3px 0 0 var(--accent-purple);
+            box-shadow: inset 3px 0 0 var(--accent-cyan);
         }
-        
+
         .nav-item .badge-nav {
             margin-left: auto;
             background: rgba(239,68,68,0.2);
@@ -214,14 +149,8 @@ PROFESSIONAL_DASHBOARD = """
             font-weight: 700;
             padding: 2px 10px;
             border-radius: 20px;
-            animation: pulse-badge 2s ease-in-out infinite;
         }
-        
-        @keyframes pulse-badge {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        
+
         .sidebar-footer {
             position: absolute;
             bottom: 20px;
@@ -234,11 +163,11 @@ PROFESSIONAL_DASHBOARD = """
             text-align: center;
             transition: var(--transition);
         }
-        
+
         .sidebar-footer:hover {
             background: rgba(239,68,68,0.15);
         }
-        
+
         .sidebar-footer a {
             color: #ef4444;
             text-decoration: none;
@@ -249,7 +178,7 @@ PROFESSIONAL_DASHBOARD = """
             justify-content: center;
             gap: 10px;
         }
-        
+
         /* ===== MAIN ===== */
         .main-content {
             margin-left: 280px;
@@ -259,7 +188,7 @@ PROFESSIONAL_DASHBOARD = """
             position: relative;
             z-index: 1;
         }
-        
+
         /* ===== TOP BAR ===== */
         .top-bar {
             display: flex;
@@ -273,12 +202,12 @@ PROFESSIONAL_DASHBOARD = """
             backdrop-filter: blur(10px);
             animation: slideDown 0.6s ease;
         }
-        
+
         @keyframes slideDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .top-bar-left h2 {
             font-size: 22px;
             font-weight: 700;
@@ -286,19 +215,19 @@ PROFESSIONAL_DASHBOARD = """
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
+
         .top-bar-left p {
             font-size: 13px;
             color: var(--text-secondary);
             margin-top: 2px;
         }
-        
+
         .top-bar-right {
             display: flex;
             gap: 12px;
             align-items: center;
         }
-        
+
         .stat-badge {
             padding: 10px 20px;
             border-radius: 10px;
@@ -309,19 +238,19 @@ PROFESSIONAL_DASHBOARD = """
             gap: 8px;
             animation: fadeIn 0.8s ease;
         }
-        
+
         .stat-badge.detections {
             background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1));
             color: #ef4444;
             border: 1px solid rgba(239,68,68,0.2);
         }
-        
+
         .stat-badge.warnings {
             background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1));
             color: #f59e0b;
             border: 1px solid rgba(245,158,11,0.2);
         }
-        
+
         .stat-badge .pulse-dot {
             width: 8px;
             height: 8px;
@@ -329,15 +258,14 @@ PROFESSIONAL_DASHBOARD = """
             display: inline-block;
             animation: pulse-dot 2s ease-in-out infinite;
         }
-        
         .stat-badge.detections .pulse-dot { background: #ef4444; }
         .stat-badge.warnings .pulse-dot { background: #f59e0b; }
-        
+
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.3; transform: scale(0.6); }
         }
-        
+
         .ai-badge {
             display: inline-flex;
             align-items: center;
@@ -351,12 +279,12 @@ PROFESSIONAL_DASHBOARD = """
             border: 1px solid rgba(6,182,212,0.1);
             animation: glow-pulse 3s ease-in-out infinite;
         }
-        
+
         @keyframes glow-pulse {
             0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.1); }
             50% { box-shadow: 0 0 25px rgba(6,182,212,0.25); }
         }
-        
+
         /* ===== STATS GRID ===== */
         .stats-grid {
             display: grid;
@@ -364,7 +292,7 @@ PROFESSIONAL_DASHBOARD = """
             gap: 20px;
             margin-bottom: 30px;
         }
-        
+
         .stat-card {
             padding: 24px 28px;
             border-radius: var(--radius);
@@ -376,31 +304,30 @@ PROFESSIONAL_DASHBOARD = """
             animation: fadeInUp 0.6s ease;
             animation-fill-mode: both;
         }
-        
         .stat-card:nth-child(1) { animation-delay: 0.1s; }
         .stat-card:nth-child(2) { animation-delay: 0.2s; }
         .stat-card:nth-child(3) { animation-delay: 0.3s; }
         .stat-card:nth-child(4) { animation-delay: 0.4s; }
-        
+
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .stat-card:hover {
             transform: translateY(-4px) scale(1.01);
             box-shadow: var(--shadow-glow);
-            border-color: rgba(139,92,246,0.2);
+            border-color: rgba(6,182,212,0.2);
         }
-        
+
         .stat-card .icon-bg {
             position: absolute;
             right: -10px;
             bottom: -10px;
             font-size: 60px;
-            opacity: 0.05;
+            opacity: 0.04;
         }
-        
+
         .stat-card .label {
             font-size: 12px;
             color: var(--text-secondary);
@@ -409,18 +336,15 @@ PROFESSIONAL_DASHBOARD = """
             letter-spacing: 0.5px;
             margin-bottom: 6px;
         }
-        
+
         .stat-card .value {
             font-size: 38px;
             font-weight: 800;
             letter-spacing: -1px;
             transition: var(--transition);
         }
-        
-        .stat-card:hover .value {
-            transform: scale(1.05);
-        }
-        
+        .stat-card:hover .value { transform: scale(1.05); }
+
         .stat-card .value.detections { color: #ef4444; }
         .stat-card .value.warnings { color: #f59e0b; }
         .stat-card .value.information { color: var(--accent-cyan); }
@@ -429,18 +353,18 @@ PROFESSIONAL_DASHBOARD = """
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
+
         .stat-card .sub {
             font-size: 12px;
             color: var(--text-muted);
             margin-top: 4px;
         }
-        
+
         .stat-card.detections { border-left: 3px solid #ef4444; }
         .stat-card.warnings { border-left: 3px solid #f59e0b; }
         .stat-card.information { border-left: 3px solid var(--accent-cyan); }
         .stat-card.total { border-left: 3px solid var(--accent-purple); }
-        
+
         /* ===== MAIN GRID ===== */
         .main-grid {
             display: grid;
@@ -448,7 +372,7 @@ PROFESSIONAL_DASHBOARD = """
             gap: 24px;
             margin-bottom: 30px;
         }
-        
+
         .glass-panel {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -460,12 +384,12 @@ PROFESSIONAL_DASHBOARD = """
             animation-delay: 0.5s;
             animation-fill-mode: both;
         }
-        
+
         .glass-panel:hover {
-            border-color: rgba(139,92,246,0.15);
+            border-color: rgba(6,182,212,0.15);
             box-shadow: var(--shadow-glow);
         }
-        
+
         .panel-header {
             display: flex;
             justify-content: space-between;
@@ -474,7 +398,7 @@ PROFESSIONAL_DASHBOARD = """
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
         }
-        
+
         .panel-title {
             font-size: 18px;
             font-weight: 700;
@@ -482,9 +406,7 @@ PROFESSIONAL_DASHBOARD = """
             align-items: center;
             gap: 10px;
         }
-        
-        .panel-title .emoji { font-size: 20px; }
-        
+
         /* ===== BUTTONS ===== */
         .btn-primary {
             background: var(--gradient-main);
@@ -504,7 +426,7 @@ PROFESSIONAL_DASHBOARD = """
             position: relative;
             overflow: hidden;
         }
-        
+
         .btn-primary::before {
             content: '';
             position: absolute;
@@ -513,18 +435,14 @@ PROFESSIONAL_DASHBOARD = """
             transform: translateX(-100%);
             transition: transform 0.6s;
         }
-        
-        .btn-primary:hover::before {
-            transform: translateX(100%);
-        }
-        
+        .btn-primary:hover::before { transform: translateX(100%); }
+
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(139,92,246,0.35);
+            box-shadow: 0 12px 30px rgba(6,182,212,0.35);
         }
-        
         .btn-primary:active { transform: scale(0.97); }
-        
+
         .btn-secondary {
             background: rgba(255,255,255,0.05);
             color: #fff;
@@ -536,16 +454,15 @@ PROFESSIONAL_DASHBOARD = """
             cursor: pointer;
             transition: var(--transition);
         }
-        
         .btn-secondary:hover {
             background: rgba(255,255,255,0.1);
             transform: translateY(-2px);
         }
-        
+
         /* ===== CODE DISPLAY ===== */
         .code-display {
             background: linear-gradient(135deg, rgba(15,12,41,0.8), rgba(48,43,99,0.6));
-            border: 2px solid rgba(139,92,246,0.25);
+            border: 2px solid rgba(6,182,212,0.25);
             border-radius: 14px;
             padding: 28px;
             text-align: center;
@@ -554,12 +471,11 @@ PROFESSIONAL_DASHBOARD = """
             overflow: hidden;
             transition: var(--transition);
         }
-        
         .code-display:hover {
-            border-color: rgba(139,92,246,0.5);
-            box-shadow: 0 0 40px rgba(139,92,246,0.1);
+            border-color: rgba(6,182,212,0.5);
+            box-shadow: 0 0 40px rgba(6,182,212,0.1);
         }
-        
+
         .code-display::before {
             content: '';
             position: absolute;
@@ -569,7 +485,7 @@ PROFESSIONAL_DASHBOARD = """
             border-radius: 14px;
             z-index: -1;
         }
-        
+
         .code-display .label {
             font-size: 12px;
             color: var(--text-secondary);
@@ -577,7 +493,7 @@ PROFESSIONAL_DASHBOARD = """
             letter-spacing: 2px;
             margin-bottom: 8px;
         }
-        
+
         .code-value {
             font-size: 56px;
             font-weight: 900;
@@ -589,25 +505,25 @@ PROFESSIONAL_DASHBOARD = """
             user-select: all;
             animation: code-glow 3s ease-in-out infinite;
         }
-        
+
         @keyframes code-glow {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(139,92,246,0.3)); }
-            50% { filter: drop-shadow(0 0 30px rgba(139,92,246,0.6)); }
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(6,182,212,0.3)); }
+            50% { filter: drop-shadow(0 0 30px rgba(6,182,212,0.6)); }
         }
-        
+
         .code-display .hint {
             color: var(--text-muted);
             font-size: 12px;
             margin-top: 8px;
         }
-        
+
         /* ===== INPUT ===== */
         .input-group {
             display: flex;
             gap: 12px;
             margin: 16px 0;
         }
-        
+
         .input-group input {
             flex: 1;
             background: rgba(255,255,255,0.04);
@@ -620,25 +536,25 @@ PROFESSIONAL_DASHBOARD = """
             letter-spacing: 4px;
             transition: var(--transition);
         }
-        
+
         .input-group input:focus {
             outline: none;
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 30px rgba(139,92,246,0.1);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(6,182,212,0.1);
             background: rgba(255,255,255,0.06);
         }
-        
+
         .input-group input::placeholder {
             color: var(--text-muted);
             letter-spacing: 0;
             font-family: 'Inter', sans-serif;
         }
-        
+
         .input-group .btn-primary {
             width: auto;
             padding: 14px 32px;
         }
-        
+
         /* ===== LOG OUTPUT ===== */
         .log-output {
             background: rgba(0,0,0,0.4);
@@ -651,28 +567,21 @@ PROFESSIONAL_DASHBOARD = """
             font-size: 13px;
             min-height: 150px;
         }
-        
+
         .log-output .empty {
             color: var(--text-muted);
             text-align: center;
             padding: 40px 20px;
         }
-        
-        .log-output .empty i {
-            font-size: 40px;
-            opacity: 0.2;
-            display: block;
-            margin-bottom: 12px;
-        }
-        
+        .log-output .empty i { font-size: 40px; opacity: 0.2; display: block; margin-bottom: 12px; }
+
         .log-output .success {
             color: #34d399;
             text-align: center;
             padding: 30px 20px;
         }
-        
         .log-output .success i { font-size: 32px; display: block; margin-bottom: 12px; }
-        
+
         /* ===== FINDING CARDS ===== */
         .finding-card {
             background: rgba(255,255,255,0.02);
@@ -683,29 +592,23 @@ PROFESSIONAL_DASHBOARD = """
             transition: var(--transition);
             cursor: pointer;
         }
-        
         .finding-card:hover {
             background: rgba(255,255,255,0.04);
             transform: translateX(4px);
         }
-        
+
         .finding-card.detection { border-left: 4px solid #ef4444; }
         .finding-card.warning { border-left: 4px solid #f59e0b; }
         .finding-card.info { border-left: 4px solid var(--accent-cyan); }
-        
+
         .finding-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
         }
-        
-        .finding-title {
-            font-weight: 600;
-            font-size: 14px;
-            color: #fff;
-        }
-        
+        .finding-title { font-weight: 600; font-size: 14px; color: #fff; }
+
         .badge {
             padding: 4px 14px;
             border-radius: 20px;
@@ -713,39 +616,30 @@ PROFESSIONAL_DASHBOARD = """
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            animation: badge-pulse 2s ease-in-out infinite;
         }
-        
-        @keyframes badge-pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
         .badge-detection {
             background: rgba(239,68,68,0.2);
             color: #ef4444;
             border: 1px solid rgba(239,68,68,0.2);
         }
-        
         .badge-warning {
             background: rgba(245,158,11,0.2);
             color: #f59e0b;
             border: 1px solid rgba(245,158,11,0.2);
         }
-        
         .badge-info {
             background: rgba(6,182,212,0.15);
             color: var(--accent-cyan);
             border: 1px solid rgba(6,182,212,0.15);
         }
-        
+
         .finding-detail {
             color: var(--text-secondary);
             font-size: 13px;
             margin: 4px 0;
             word-break: break-all;
         }
-        
+
         .finding-meta {
             display: flex;
             gap: 16px;
@@ -753,42 +647,40 @@ PROFESSIONAL_DASHBOARD = """
             font-size: 11px;
             color: var(--text-muted);
         }
-        
         .finding-meta i { margin-right: 4px; }
-        
+
         /* ===== CHART ===== */
         .chart-container {
             position: relative;
             height: 260px;
             margin: 10px 0;
         }
-        
+
         /* ===== PAGES ===== */
         .page { display: none; animation: fadeSlide 0.5s ease; }
         .page.active { display: block; }
-        
+
         @keyframes fadeSlide {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         /* ===== EMPTY STATE ===== */
         .empty-state {
             color: var(--text-muted);
             text-align: center;
             padding: 50px 20px;
         }
-        
         .empty-state i { font-size: 40px; margin-bottom: 16px; opacity: 0.3; }
         .empty-state h4 { color: var(--text-secondary); margin-bottom: 6px; }
         .empty-state p { font-size: 14px; }
-        
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1200px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .main-grid { grid-template-columns: 1fr; }
         }
-        
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -803,26 +695,14 @@ PROFESSIONAL_DASHBOARD = """
             .input-group .btn-primary { width: 100%; }
             .top-bar-right { flex-wrap: wrap; }
         }
-        
-        /* ===== SECTION GRID ===== */
-        .section-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        @media (max-width: 900px) {
-            .section-grid { grid-template-columns: 1fr; }
-        }
-        
-        /* ===== FILTER ===== */
+
+        /* ===== FILTER BAR ===== */
         .filter-bar {
             display: flex;
             gap: 8px;
             margin-bottom: 16px;
             flex-wrap: wrap;
         }
-        
         .filter-btn {
             padding: 6px 16px;
             border-radius: 20px;
@@ -834,19 +714,17 @@ PROFESSIONAL_DASHBOARD = """
             cursor: pointer;
             transition: var(--transition);
         }
-        
         .filter-btn:hover {
             background: rgba(255,255,255,0.05);
             color: #fff;
             transform: translateY(-2px);
         }
-        
         .filter-btn.active {
-            background: rgba(139,92,246,0.2);
+            background: rgba(6,182,212,0.2);
             color: #fff;
-            border-color: var(--accent-purple);
+            border-color: var(--accent-cyan);
         }
-        
+
         /* ===== MOBILE TOGGLE ===== */
         .mobile-toggle {
             display: none;
@@ -858,13 +736,9 @@ PROFESSIONAL_DASHBOARD = """
             padding: 8px;
             transition: var(--transition);
         }
-        
-        .mobile-toggle:hover { color: var(--accent-purple); }
-        
-        @media (max-width: 768px) {
-            .mobile-toggle { display: block; }
-        }
-        
+        .mobile-toggle:hover { color: var(--accent-cyan); }
+        @media (max-width: 768px) { .mobile-toggle { display: block; } }
+
         /* ===== LIVE INDICATOR ===== */
         .live-indicator {
             display: flex;
@@ -873,7 +747,6 @@ PROFESSIONAL_DASHBOARD = """
             font-size: 12px;
             color: var(--text-secondary);
         }
-        
         .live-dot {
             width: 8px;
             height: 8px;
@@ -881,55 +754,35 @@ PROFESSIONAL_DASHBOARD = """
             background: #34d399;
             animation: live-pulse 1.5s ease-in-out infinite;
         }
-        
         @keyframes live-pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.3; transform: scale(0.6); }
         }
-        
-        /* ===== LOADING SPINNER ===== */
+
         .spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
             border: 2px solid rgba(255,255,255,0.1);
-            border-top-color: var(--accent-purple);
+            border-top-color: var(--accent-cyan);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Glow text effect */
-        .glow-text {
-            background: var(--gradient-main);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<!-- ===== ANIMATED BACKGROUND ORBS ===== -->
-<div class="bg-orb orb1"></div>
-<div class="bg-orb orb2"></div>
-<div class="bg-orb orb3"></div>
-
 <!-- ===== SIDEBAR ===== -->
 <nav class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <div class="logo">
-            <div class="logo-icon">⚡</div>
-            <div>
-                <h1>BPW</h1>
-                <span>Forensic Scanner v4.0</span>
-            </div>
+        <img src="https://cdn.discordapp.com/attachments/145469673123741861/1527128832144965762/pc_checker_role_icon_bpw.png?ex=6a59890e&is=6a5837..." alt="BPW Logo">
+        <div class="brand-text">
+            <h1>BPW</h1>
+            <span>Forensic Scanner v5.0</span>
         </div>
     </div>
-    
+
     <div class="nav-item active" onclick="showPage('overview')">
         <span class="icon"><i class="fas fa-chart-pie"></i></span> Overview
     </div>
@@ -946,7 +799,7 @@ PROFESSIONAL_DASHBOARD = """
     <div class="nav-item" onclick="showPage('accounts')">
         <span class="icon"><i class="fas fa-user-circle"></i></span> Alt Accounts
     </div>
-    
+
     <div class="sidebar-footer">
         <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
@@ -954,13 +807,11 @@ PROFESSIONAL_DASHBOARD = """
 
 <!-- ===== MAIN ===== -->
 <div class="main-content">
-
-    <!-- Mobile Toggle -->
     <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- ===== TOP BAR ===== -->
+    <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
             <h2>🎯 Dashboard</h2>
@@ -983,10 +834,8 @@ PROFESSIONAL_DASHBOARD = """
         </div>
     </div>
 
-    <!-- ===== PAGE: OVERVIEW ===== -->
+    <!-- Overview Page -->
     <div id="page-overview" class="page active">
-        
-        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card detections">
                 <div class="icon-bg"><i class="fas fa-bug"></i></div>
@@ -1014,9 +863,7 @@ PROFESSIONAL_DASHBOARD = """
             </div>
         </div>
 
-        <!-- Main Grid -->
         <div class="main-grid">
-            <!-- Generate Code -->
             <div class="glass-panel">
                 <div class="panel-header">
                     <div class="panel-title"><span class="emoji">🔑</span> Generate Access Code</div>
@@ -1031,7 +878,6 @@ PROFESSIONAL_DASHBOARD = """
                 </div>
             </div>
 
-            <!-- Retrieve Logs -->
             <div class="glass-panel">
                 <div class="panel-header">
                     <div class="panel-title"><span class="emoji">📥</span> Retrieve Logs</div>
@@ -1051,7 +897,6 @@ PROFESSIONAL_DASHBOARD = """
             </div>
         </div>
 
-        <!-- Chart -->
         <div class="glass-panel">
             <div class="panel-header">
                 <div class="panel-title"><span class="emoji">📈</span> Threat Analysis</div>
@@ -1059,13 +904,11 @@ PROFESSIONAL_DASHBOARD = """
                     <span class="live-dot"></span> Updated
                 </span>
             </div>
-            <div class="chart-container">
-                <canvas id="pieChart"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="pieChart"></canvas></div>
         </div>
     </div>
 
-    <!-- ===== PAGE: GENERAL ===== -->
+    <!-- General Info Page -->
     <div id="page-general" class="page">
         <div class="glass-panel">
             <div class="panel-header">
@@ -1081,7 +924,7 @@ PROFESSIONAL_DASHBOARD = """
         </div>
     </div>
 
-    <!-- ===== PAGE: SUSPICIOUS ===== -->
+    <!-- Suspicious Page -->
     <div id="page-suspicious" class="page">
         <div class="glass-panel">
             <div class="panel-header">
@@ -1103,7 +946,7 @@ PROFESSIONAL_DASHBOARD = """
         </div>
     </div>
 
-    <!-- ===== PAGE: FILES ===== -->
+    <!-- Files Page -->
     <div id="page-files" class="page">
         <div class="glass-panel">
             <div class="panel-header">
@@ -1119,7 +962,7 @@ PROFESSIONAL_DASHBOARD = """
         </div>
     </div>
 
-    <!-- ===== PAGE: ACCOUNTS ===== -->
+    <!-- Accounts Page -->
     <div id="page-accounts" class="page">
         <div class="glass-panel">
             <div class="panel-header">
@@ -1134,7 +977,6 @@ PROFESSIONAL_DASHBOARD = """
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -1143,7 +985,6 @@ PROFESSIONAL_DASHBOARD = """
     let pieChart = null;
     let currentFilter = 'all';
 
-    // ===== NAVIGATION =====
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1156,7 +997,6 @@ PROFESSIONAL_DASHBOARD = """
         document.getElementById('sidebar').classList.remove('open');
     }
 
-    // ===== GENERATE PIN =====
     async function generatePin() {
         const res = await fetch('/api/generate-pin');
         const data = await res.json();
@@ -1167,13 +1007,12 @@ PROFESSIONAL_DASHBOARD = """
         setTimeout(() => el.style.animation = 'code-glow 3s ease-in-out infinite', 10);
     }
 
-    // ===== FETCH LOGS =====
     async function fetchLogs() {
         const pin = document.getElementById('fetch-pin').value;
         if (pin.length !== 6) { alert("Please enter a 6-digit code"); return; }
 
         const output = document.getElementById('log-output');
-        output.innerHTML = `<div style="text-align:center;padding:40px;color:var(--accent-purple);">
+        output.innerHTML = `<div style="text-align:center;padding:40px;color:var(--accent-cyan);">
             <div class="spinner" style="width:40px;height:40px;border-width:3px;margin:0 auto 16px;"></div>
             <p>Fetching logs...</p>
         </div>`;
@@ -1206,7 +1045,6 @@ PROFESSIONAL_DASHBOARD = """
         }
     }
 
-    // ===== UPDATE OVERVIEW =====
     function updateOverview(logs) {
         let detections = 0, warnings = 0, information = 0;
 
@@ -1219,7 +1057,6 @@ PROFESSIONAL_DASHBOARD = """
             });
         }
 
-        // Animate numbers
         animateNumber('stat-detections', detections);
         animateNumber('stat-warnings', warnings);
         animateNumber('stat-information', information);
@@ -1237,7 +1074,6 @@ PROFESSIONAL_DASHBOARD = """
         const current = parseInt(el.innerText) || 0;
         const duration = 500;
         const start = performance.now();
-        
         function update(now) {
             const progress = Math.min((now - start) / duration, 1);
             const value = Math.floor(current + (target - current) * progress);
@@ -1247,7 +1083,6 @@ PROFESSIONAL_DASHBOARD = """
         requestAnimationFrame(update);
     }
 
-    // ===== CREATE FINDING CARD =====
     function createFindingCard(item) {
         const tier = (item.tier || 'Information').toLowerCase();
         const cls = tier === 'detection' ? 'detection' : tier === 'warning' ? 'warning' : 'info';
@@ -1269,7 +1104,6 @@ PROFESSIONAL_DASHBOARD = """
         </div>`;
     }
 
-    // ===== FILTER FINDINGS =====
     function filterFindings(filter) {
         currentFilter = filter;
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1304,12 +1138,11 @@ PROFESSIONAL_DASHBOARD = """
         }
     }
 
-    // ===== POPULATE ALL SECTIONS =====
     function populateAllSections(logs) {
         // General Info
         const general = document.getElementById('general-content');
         if (general) {
-            let html = `<div style="background:rgba(139,92,246,0.08);padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid rgba(139,92,246,0.1);">
+            let html = `<div style="background:rgba(6,182,212,0.08);padding:20px;border-radius:12px;margin-bottom:20px;border:1px solid rgba(6,182,212,0.1);">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div><span style="color:var(--text-secondary);font-size:12px;">📅 Scan Time</span><br><span style="color:#fff;font-weight:600;">${logs.timestamp || 'N/A'}</span></div>
                     <div><span style="color:var(--text-secondary);font-size:12px;">💻 Hostname</span><br><span style="color:#fff;font-weight:600;">${logs.hostname || 'Unknown'}</span></div>
@@ -1323,7 +1156,6 @@ PROFESSIONAL_DASHBOARD = """
                 html += `<div style="color:var(--text-secondary);margin:16px 0 12px;font-size:14px;">All Findings (${logs.findings.length})</div>`;
                 logs.findings.forEach(f => { html += createFindingCard(f); });
             }
-            
             general.innerHTML = html;
         }
         
@@ -1369,7 +1201,6 @@ PROFESSIONAL_DASHBOARD = """
         }
     }
 
-    // ===== DRAW PIE CHART =====
     function drawPieChart(d, w, i) {
         const ctx = document.getElementById('pieChart').getContext('2d');
         if (pieChart) pieChart.destroy();
@@ -1389,11 +1220,7 @@ PROFESSIONAL_DASHBOARD = """
                 labels: ['Detections', 'Warnings', 'Information'],
                 datasets: [{
                     data: [d, w, i],
-                    backgroundColor: [
-                        'rgba(239,68,68,0.8)',
-                        'rgba(245,158,11,0.8)',
-                        'rgba(6,182,212,0.8)'
-                    ],
+                    backgroundColor: ['rgba(239,68,68,0.8)', 'rgba(245,158,11,0.8)', 'rgba(6,182,212,0.8)'],
                     borderColor: ['#ef4444', '#f59e0b', '#06b6d4'],
                     borderWidth: 3,
                     hoverOffset: 10
@@ -1415,10 +1242,7 @@ PROFESSIONAL_DASHBOARD = """
                         }
                     }
                 },
-                animation: {
-                    animateRotate: true,
-                    duration: 1500
-                }
+                animation: { animateRotate: true, duration: 1500 }
             }
         });
     }
@@ -1441,7 +1265,7 @@ PROFESSIONAL_DASHBOARD = """
 def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template_string(PROFESSIONAL_DASHBOARD)
+    return render_template_string(DASHBOARD_HTML)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1455,14 +1279,14 @@ def login():
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
-                    background: #0a0e1a;
+                    background: #0b0e1a;
                     color: #fff;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     height: 100vh;
                     font-family: 'Segoe UI', sans-serif;
-                    background-image: radial-gradient(ellipse at 10% 20%, rgba(139,92,246,0.08) 0%, transparent 50%);
+                    background-image: radial-gradient(ellipse at 10% 20%, rgba(6,182,212,0.08) 0%, transparent 50%);
                 }
                 .box {
                     background: rgba(255,255,255,0.03);
@@ -1475,13 +1299,13 @@ def login():
                     backdrop-filter: blur(10px);
                 }
                 h1 {
-                    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+                    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     font-size: 28px;
                     margin-bottom: 8px;
                 }
-                .sub { color: #475569; font-size: 14px; margin-bottom: 30px; }
+                .sub { color: #4a5568; font-size: 14px; margin-bottom: 30px; }
                 input {
                     background: rgba(255,255,255,0.05);
                     border: 1px solid rgba(255,255,255,0.1);
@@ -1493,9 +1317,9 @@ def login():
                     font-size: 16px;
                     transition: 0.3s;
                 }
-                input:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 30px rgba(139,92,246,0.1); }
+                input:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 30px rgba(6,182,212,0.1); }
                 button {
-                    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+                    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
                     color: #fff;
                     border: none;
                     padding: 16px 40px;
@@ -1506,7 +1330,7 @@ def login():
                     width: 100%;
                     transition: 0.3s;
                 }
-                button:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(139,92,246,0.35); }
+                button:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(6,182,212,0.35); }
                 .error { color: #ef4444; margin-bottom: 15px; font-size: 14px; }
                 .lock { font-size: 40px; margin-bottom: 16px; }
             </style>
@@ -1530,14 +1354,14 @@ def login():
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: #0a0e1a;
+                background: #0b0e1a;
                 color: #fff;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
                 font-family: 'Segoe UI', sans-serif;
-                background-image: radial-gradient(ellipse at 10% 20%, rgba(139,92,246,0.08) 0%, transparent 50%);
+                background-image: radial-gradient(ellipse at 10% 20%, rgba(6,182,212,0.08) 0%, transparent 50%);
             }
             .box {
                 background: rgba(255,255,255,0.03);
@@ -1550,13 +1374,13 @@ def login():
                 backdrop-filter: blur(10px);
             }
             h1 {
-                background: linear-gradient(135deg, #8b5cf6, #ec4899);
+                background: linear-gradient(135deg, #06b6d4, #8b5cf6);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 font-size: 28px;
                 margin-bottom: 8px;
             }
-            .sub { color: #475569; font-size: 14px; margin-bottom: 30px; }
+            .sub { color: #4a5568; font-size: 14px; margin-bottom: 30px; }
             input {
                 background: rgba(255,255,255,0.05);
                 border: 1px solid rgba(255,255,255,0.1);
@@ -1568,9 +1392,9 @@ def login():
                 font-size: 16px;
                 transition: 0.3s;
             }
-            input:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 30px rgba(139,92,246,0.1); }
+            input:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 30px rgba(6,182,212,0.1); }
             button {
-                background: linear-gradient(135deg, #8b5cf6, #ec4899);
+                background: linear-gradient(135deg, #06b6d4, #8b5cf6);
                 color: #fff;
                 border: none;
                 padding: 16px 40px;
@@ -1581,7 +1405,7 @@ def login():
                 width: 100%;
                 transition: 0.3s;
             }
-            button:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(139,92,246,0.35); }
+            button:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(6,182,212,0.35); }
             .lock { font-size: 40px; margin-bottom: 16px; }
         </style>
         </head>
@@ -1637,4 +1461,4 @@ def get_logs(pin):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
