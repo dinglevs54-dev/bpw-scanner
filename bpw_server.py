@@ -18,7 +18,7 @@ DASHBOARD_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPW // FORENSIC SCANNER</title>
+    <title>BPW // FORENSIC SCANNER V5.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -27,7 +27,7 @@ DASHBOARD_HTML = """
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg-primary: #0b0e1a;
+            --bg-primary: #0a0e1a;
             --bg-secondary: #111827;
             --bg-card: rgba(255,255,255,0.03);
             --border-color: rgba(255,255,255,0.06);
@@ -40,8 +40,8 @@ DASHBOARD_HTML = """
             --accent-blue: #3b82f6;
             --accent-orange: #f59e0b;
             --accent-red: #ef4444;
-            --gradient-main: linear-gradient(135deg, #8b5cf6, #06b6d4);
-            --gradient-cyber: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            --gradient-main: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            --gradient-cyber: linear-gradient(135deg, #8b5cf6, #06b6d4);
             --shadow-glow: 0 0 40px rgba(139,92,246,0.15);
             --radius: 16px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,7 +58,6 @@ DASHBOARD_HTML = """
                 radial-gradient(ellipse at 90% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
         }
 
-        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
         ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 10px; }
@@ -84,35 +83,26 @@ DASHBOARD_HTML = """
             padding: 0 24px 30px;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
+            text-align: center;
         }
 
-        .sidebar-brand img {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 2px solid rgba(6,182,212,0.3);
-            box-shadow: 0 0 20px rgba(6,182,212,0.15);
-        }
-
-        .sidebar-brand .brand-text h1 {
-            font-size: 22px;
+        .sidebar-brand .logo-text {
+            font-size: 32px;
             font-weight: 900;
             background: var(--gradient-main);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
+            line-height: 1.1;
         }
 
-        .sidebar-brand .brand-text span {
+        .sidebar-brand .logo-sub {
             font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
             text-transform: uppercase;
+            margin-top: 4px;
+            font-weight: 600;
         }
 
         .nav-item {
@@ -163,11 +153,7 @@ DASHBOARD_HTML = """
             text-align: center;
             transition: var(--transition);
         }
-
-        .sidebar-footer:hover {
-            background: rgba(239,68,68,0.15);
-        }
-
+        .sidebar-footer:hover { background: rgba(239,68,68,0.15); }
         .sidebar-footer a {
             color: #ef4444;
             text-decoration: none;
@@ -189,7 +175,6 @@ DASHBOARD_HTML = """
             z-index: 1;
         }
 
-        /* ===== TOP BAR ===== */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -215,7 +200,6 @@ DASHBOARD_HTML = """
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .top-bar-left p {
             font-size: 13px;
             color: var(--text-secondary);
@@ -226,6 +210,7 @@ DASHBOARD_HTML = """
             display: flex;
             gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .stat-badge {
@@ -238,19 +223,16 @@ DASHBOARD_HTML = """
             gap: 8px;
             animation: fadeIn 0.8s ease;
         }
-
         .stat-badge.detections {
             background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1));
             color: #ef4444;
             border: 1px solid rgba(239,68,68,0.2);
         }
-
         .stat-badge.warnings {
             background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1));
             color: #f59e0b;
             border: 1px solid rgba(245,158,11,0.2);
         }
-
         .stat-badge .pulse-dot {
             width: 8px;
             height: 8px;
@@ -279,7 +261,6 @@ DASHBOARD_HTML = """
             border: 1px solid rgba(6,182,212,0.1);
             animation: glow-pulse 3s ease-in-out infinite;
         }
-
         @keyframes glow-pulse {
             0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.1); }
             50% { box-shadow: 0 0 25px rgba(6,182,212,0.25); }
@@ -739,7 +720,6 @@ DASHBOARD_HTML = """
         .mobile-toggle:hover { color: var(--accent-cyan); }
         @media (max-width: 768px) { .mobile-toggle { display: block; } }
 
-        /* ===== LIVE INDICATOR ===== */
         .live-indicator {
             display: flex;
             align-items: center;
@@ -776,11 +756,8 @@ DASHBOARD_HTML = """
 <!-- ===== SIDEBAR ===== -->
 <nav class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <img src="https://cdn.discordapp.com/attachments/145469673123741861/1527128832144965762/pc_checker_role_icon_bpw.png?ex=6a59890e&is=6a5837..." alt="BPW Logo">
-        <div class="brand-text">
-            <h1>BPW</h1>
-            <span>Forensic Scanner v5.0</span>
-        </div>
+        <div class="logo-text">BPW</div>
+        <div class="logo-sub">FORENSIC SCANNER V5.0</div>
     </div>
 
     <div class="nav-item active" onclick="showPage('overview')">
@@ -811,11 +788,10 @@ DASHBOARD_HTML = """
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
             <h2>🎯 Dashboard</h2>
-            <p>Real-time forensic analysis & threat detection</p>
+            <p>Real‑time forensic analysis & threat detection</p>
         </div>
         <div class="top-bar-right">
             <div class="live-indicator">
@@ -841,7 +817,7 @@ DASHBOARD_HTML = """
                 <div class="icon-bg"><i class="fas fa-bug"></i></div>
                 <div class="label">🎯 Detections</div>
                 <div class="value detections" id="stat-detections">0</div>
-                <div class="sub">High-confidence threats</div>
+                <div class="sub">High‑confidence threats</div>
             </div>
             <div class="stat-card warnings">
                 <div class="icon-bg"><i class="fas fa-exclamation-circle"></i></div>
@@ -872,7 +848,7 @@ DASHBOARD_HTML = """
                     <i class="fas fa-sync-alt"></i> Generate New Code
                 </button>
                 <div class="code-display">
-                    <div class="label">Your 6-Digit Code</div>
+                    <div class="label">Your 6‑Digit Code</div>
                     <div class="code-value" id="pin-display">------</div>
                     <div class="hint">Share this code with the target PC</div>
                 </div>
@@ -883,7 +859,7 @@ DASHBOARD_HTML = """
                     <div class="panel-title"><span class="emoji">📥</span> Retrieve Logs</div>
                 </div>
                 <div class="input-group">
-                    <input type="text" id="fetch-pin" placeholder="Enter 6-digit code" maxlength="6">
+                    <input type="text" id="fetch-pin" placeholder="Enter 6‑digit code" maxlength="6">
                     <button class="btn-primary" onclick="fetchLogs()">
                         <i class="fas fa-search"></i> Fetch
                     </button>
@@ -1001,7 +977,6 @@ DASHBOARD_HTML = """
         const res = await fetch('/api/generate-pin');
         const data = await res.json();
         document.getElementById('pin-display').innerText = data.pin;
-        // Animate
         const el = document.getElementById('pin-display');
         el.style.animation = 'none';
         setTimeout(() => el.style.animation = 'code-glow 3s ease-in-out infinite', 10);
@@ -1159,7 +1134,6 @@ DASHBOARD_HTML = """
             general.innerHTML = html;
         }
         
-        // Suspicious
         populateSuspicious(logs.findings || []);
         
         // Files
@@ -1247,7 +1221,6 @@ DASHBOARD_HTML = """
         });
     }
 
-    // Auto-fetch logs if PIN is in URL
     window.onload = function() {
         const params = new URLSearchParams(window.location.search);
         const pin = params.get('pin');
@@ -1279,7 +1252,7 @@ def login():
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body {
-                    background: #0b0e1a;
+                    background: #0a0e1a;
                     color: #fff;
                     display: flex;
                     justify-content: center;
@@ -1354,7 +1327,7 @@ def login():
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: #0b0e1a;
+                background: #0a0e1a;
                 color: #fff;
                 display: flex;
                 justify-content: center;
